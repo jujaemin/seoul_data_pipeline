@@ -129,7 +129,7 @@ life_people_extract = PythonOperator(
     python_callable = life_people_extract,
     provide_context=True,
     params = {
-        'url':  'http://openapi.seoul.go.kr:8088/7a75554f79796f79353874786b6154/json/SPOP_DAILYSUM_JACHI/1/1000/'
+        'url':  'http://openapi.seoul.go.kr:8088/api_key/json/SPOP_DAILYSUM_JACHI/1/1000/'
     },
     dag = dag)
 
@@ -138,7 +138,7 @@ housing_extract = PythonOperator(
     python_callable = housing_extract,
     provide_context=True,
     params = {
-        'url':  'http://openapi.seoul.go.kr:8088/7a75554f79796f79353874786b6154/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'
+        'url':  'http://openapi.seoul.go.kr:8088/api_key/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'
     },
     dag = dag)
 
