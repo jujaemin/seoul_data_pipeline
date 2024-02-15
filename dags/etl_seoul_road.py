@@ -1,6 +1,6 @@
 from airflow.decorators import dag, task
 from airflow.models import Variable
-from plugins import RequestTool, FileManager, S3Helper
+from utils import RequestTool, FileManager, S3Helper
 from datetime import datetime, timedelta
 import logging
 import pandas as pd
@@ -31,33 +31,38 @@ def etl_seoul_road():
         # 데이터 자체는 1시간 단위지만, API 데이터 업데이트 주기가 하루에 1번 입니다. 즉, 하루 치 데이터가 모여서 한 번에 들어옵니다.
         startRow = 1
         # 도심생활권, 동남생활권, 동북생활권, 서남생활권, 서북생활권 5개 권역이 1시간마다 1번 기록됩니다. 5개 권역 x 24시간 = 120개
-        rowCnt = "120"  
-
-        params = {
+        rowCnt = "120"
+        parsed_date = datetime.strptime(
+            execution_date, "%Y-%m-%d").strftime("%Y%m%d")
+        req_params = {
             "startRow": startRow,
             "apikey": api_key,
-            "stndDt": f"{execution_date}",
+            "stndDt": f"{parsed_date}",
             "rowCnt": rowCnt,
         }
         logging.info('Parameters for request is ready.')
-        return params
+        return req_params
 
     @task()
-    def extract(params: dict, execution_date: str):
-        verify=False
-        json_result = RequestTool.api_request(base_url, verify, params)
+    def extract(req_params: dict, execution_date: str):
+        verify = False
+        json_result = RequestTool.api_request(base_url, verify, req_params)
         logging.info('JSON data has been extracted.')
         return json_result
 
     @task()
-    def transform(json_extracted: json, execution_date: str):
+    def transform(json_extracted, execution_date: str):
         # filename of the csv file to be finally saved
-        filename = f'temp/seoul_road/{execution_date}.csv'
-        df = pd.DataFrame(json.loads(json_extracted))
+        path = 'temp/seoul_road'
+        filename = f'{path}/{execution_date}.csv'
+        df = pd.DataFrame(json_extracted)
 
         # # Cleansing
         # df.dropna(inplace=True)
         # df.drop_duplicates(inplace=True)
+
+        # make temporary directory
+        FileManager.mkdir(path)
 
         # Save as CSV
         df.to_csv(filename, header=False, index=False, encoding="utf-8-sig")
@@ -85,8 +90,8 @@ def etl_seoul_road():
         FileManager.remove(filename)
 
     # TaskFlow
-    params = prepare()
-    json = extract(params)
+    req_params = prepare()
+    json = extract(req_params)
     filename = transform(json)
     load(filename)
 
