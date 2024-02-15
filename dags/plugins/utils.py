@@ -7,9 +7,9 @@ import os
 class RequestTool(AirflowPlugin):
     name = "request_tool"
 
-    def api_request(api_url: str, params: dict):
+    def api_request(api_url: str, verify: bool, params: dict):
         try:
-            response = requests.get(api_url, params=params)
+            response = requests.get(api_url, verify=verify, params=params)
             response.raise_for_status()
 
             return response.json()
@@ -31,3 +31,7 @@ class FileManager(AirflowPlugin):
 
     def remove(filename: str):
         os.remove(filename)
+
+    def mkdir(path):
+        if not os.path.exists(path):
+            os.makedirs(path)
