@@ -23,5 +23,5 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_BUCKET }}
           destination_dir: ${{ secrets.AWS_DESTINATION_KEY }}
-          source_dir: '' # Github workspace 전체를 복사
+          source_dir: 'dags' # dags 폴더만 복사
           
