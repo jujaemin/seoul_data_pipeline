@@ -45,7 +45,6 @@ def etl_seoul_road():
     @task()
     def extract(params: dict, execution_date: str):
         verify=False
-        # Api request multiple time with various parameters
         json_result = RequestTool.api_request(base_url, verify, params)
         logging.info('JSON data has been extracted.')
         return json_result
@@ -76,11 +75,13 @@ def etl_seoul_road():
         replace = True
 
         try:
+            # Upload to S3
             S3Helper.upload(s3_conn_id, bucket_name, key, filename, replace)
         except Exception as e:
             logging.error(f'Error occured during loading to S3: {str(e)}')
             raise
         logging.info('CSV file has been loaded to S3.')
+        # Remove local file
         FileManager.remove(filename)
 
     # TaskFlow
