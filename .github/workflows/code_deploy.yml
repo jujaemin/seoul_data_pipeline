@@ -1,0 +1,27 @@
+name: Upload to S3
+
+on: 
+  # main 브랜치에 push 및 merge할 때 실행
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  
+  # Workflow를 매뉴얼하게 트리거할 수 있음
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout을 이용해 코드에 접근
+      - uses: actions/checkout@v3
+      # s3-upload-action을 이용
+      - uses: shallwefootball/s3-upload-action@v1.3.3
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          destination_dir: ${{ secrets.AWS_DESTINATION_KEY }}
+          source_dir: 'dags' # dags 폴더만 복사
+          
