@@ -1,11 +1,14 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.models import Variable
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from datetime import timedelta
+
 import requests
 import pandas as pd
 import datetime
 import os
+
 
 
 def life_people_extract(**context):
@@ -63,57 +66,78 @@ def housing_transform(**context):
         return None
 
 
-def life_people_upload(**context):
+def life_people_load(**context):
     record = context["task_instance"].xcom_pull(key="return_value", task_ids="life_people_transform")
-    print(record)
-    #s3_hook = S3Hook(aws_conn_id='aws_default')
-    file_path = '/opt/airflow/work_file'
-    print(file_path)
 
     try:
         data = record[0]
         date = record[1]
 
+        file_path = '/works/Seoul_pop/'
         file_name = '{}.csv'.format(date)
 
         os.makedirs(file_path, exist_ok=True)
         local_file = os.path.join(file_path, file_name)
 
-        pd.DataFrame(data).to_csv(local_file, index = False)
+        data.to_csv(local_file, header = False, index = False)
 
-        #s3_hook.load_file(file, key = 'key', bucket_name = 'de-team5-s3-01', replace = True)
+        return [local_file, file_name]
+    
+    except:
+        return None
 
-        #os.remove(file)
+def housing_load(**context):
+    record = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_transform")
+
+    try:
+        data = record[0]
+        date = record[1]
+
+        file_path = '/works/Seoul_housing/'
+        file_name = '{}.csv'.format(date)
+
+        os.makedirs(file_path, exist_ok=True)
+        local_file = os.path.join(file_path, file_name)
+
+        data.to_csv(local_file, header = False, index = False)
+
+        return [local_file, file_name]
+    
+    except:
+        return None
+
+def life_people_upload(**context):
+    file = context["task_instance"].xcom_pull(key="return_value", task_ids="life_people_load")
+    
+    try:
+        local_file = file[0]
+        file_name = file[1]
+
+        s3_hook = S3Hook(aws_conn_id='aws_default')
+        s3_hook.load_file(filename = local_file, key = 'raw_data/Seoul_POP/{}'.format(file_name), bucket_name = 'de-team5-s3-01', replace = True)
+
+        os.remove(local_file)
     
     except:
         pass
 
 def housing_upload(**context):
-    record = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_transform")
-    print(record)
-    #s3_hook = S3Hook(aws_conn_id='aws_default')
-    file_path = '/opt/airflow/work_file'
-
+    file = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_load")
+    
     try:
-        data = record[0]
-        date = record[1]
+        local_file = file[0]
+        file_name = file[1]
 
-        file_name = '{}.csv'.format(date)
+        s3_hook = S3Hook(aws_conn_id='aws_default')
+        s3_hook.load_file(filename = local_file, key = 'raw_data/Seoul_housing/{}'.format(file_name), bucket_name = 'de-team5-s3-01', replace = True)
 
-        os.makedirs(file_path, exist_ok=True)
-        local_file = os.path.join(file_path, file_name)
-
-        pd.DataFrame(data).to_csv(local_file, index = False)
-
-        #s3_hook.load_file(local_file, key = 'key', bucket_name = 'de-team5-s3-01', replace = True)
-
-        #os.remove(file)
+        os.remove(local_file)
     
     except:
         pass
 
 dag = DAG(
-    dag_id = 'DE-Project_test',
+    dag_id = 'Seoul_pop_and_Seoul_housing',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
@@ -129,7 +153,7 @@ life_people_extract = PythonOperator(
     python_callable = life_people_extract,
     provide_context=True,
     params = {
-        'url':  'http://openapi.seoul.go.kr:8088/api_key/json/SPOP_DAILYSUM_JACHI/1/1000/'
+        'url':  Variable.get('pop_url')
     },
     dag = dag)
 
@@ -138,7 +162,7 @@ housing_extract = PythonOperator(
     python_callable = housing_extract,
     provide_context=True,
     params = {
-        'url':  'http://openapi.seoul.go.kr:8088/api_key/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'
+        'url':  Variable.get('housing_url')
     },
     dag = dag)
 
@@ -153,6 +177,22 @@ life_people_transform = PythonOperator(
 housing_transform = PythonOperator(
     task_id = 'housing_transform',
     python_callable = housing_transform,
+    provide_context=True,
+    params = { 
+    },  
+    dag = dag)
+
+life_people_load = PythonOperator(
+    task_id = 'life_people_load',
+    python_callable = life_people_load,
+    provide_context=True,
+    params = { 
+    },  
+    dag = dag)
+
+housing_load = PythonOperator(
+    task_id = 'housing_load',
+    python_callable = housing_load,
     provide_context=True,
     params = { 
     },  
@@ -174,5 +214,5 @@ housing_upload = PythonOperator(
     },  
     dag = dag)
 
-life_people_extract >> life_people_transform >> life_people_upload
-housing_extract >> housing_transform >> housing_upload
+life_people_extract >> life_people_transform >> life_people_load >> life_people_upload
+housing_extract >> housing_transform >> housing_load >> housing_upload
