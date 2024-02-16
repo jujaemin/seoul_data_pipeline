@@ -8,6 +8,7 @@ import requests
 import pandas as pd
 import datetime
 import os
+import logging
 
 
 
@@ -18,6 +19,8 @@ def life_people_extract(**context):
     date = execution_date.date().strftime('%Y-%m-%d')
     url = link + date.replace('-', '')
 
+    logging.info(f'Success : life_people_extract ({date})')
+
     return [url, date]
 
 def housing_extract(**context):
@@ -26,6 +29,8 @@ def housing_extract(**context):
 
     date = execution_date.date().strftime('%Y-%m-%d')
     url = link + date.replace('-', '')
+
+    logging.info(f'Success : housing_extract ({date})')
 
     return [url, date]
 
@@ -41,9 +46,12 @@ def life_people_transform(**context):
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
+        logging.info(f'Success : life_people_transform ({date})')
+
         return [life_people_data, date]
     
     except:
+        logging.error(f'no data found : {date}')
         return None
 
 
@@ -60,9 +68,12 @@ def housing_transform(**context):
 
         housing_data = df[['DEAL_YMD', 'SGG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
 
+        logging.info(f'Success : housing_transform ({date})')
+
         return [housing_data, date]
         
     except:
+        logging.error(f'no data found : {date}')
         return None
 
 
@@ -81,9 +92,12 @@ def life_people_load(**context):
 
         data.to_csv(local_file, header = False, index = False)
 
+        logging.info(f'Success : life_people_load ({date})')
+
         return [local_file, file_name]
     
     except:
+        logging.error(f'no data found : {date}')
         return None
 
 def housing_load(**context):
@@ -101,9 +115,12 @@ def housing_load(**context):
 
         data.to_csv(local_file, header = False, index = False)
 
+        logging.info(f'Success : housing_load ({date})')
+
         return [local_file, file_name]
     
     except:
+        logging.error(f'no data found : {date}')
         return None
 
 def life_people_upload(**context):
@@ -117,8 +134,11 @@ def life_people_upload(**context):
         s3_hook.load_file(filename = local_file, key = 'raw_data/Seoul_POP/{}'.format(file_name), bucket_name = 'de-team5-s3-01', replace = True)
 
         os.remove(local_file)
+
+        logging.info(f'Success : life_people_upload ({date})')
     
     except:
+        logging.error(f'no data found : {date}')
         pass
 
 def housing_upload(**context):
@@ -132,8 +152,11 @@ def housing_upload(**context):
         s3_hook.load_file(filename = local_file, key = 'raw_data/Seoul_housing/{}'.format(file_name), bucket_name = 'de-team5-s3-01', replace = True)
 
         os.remove(local_file)
+
+        logging.info(f'Success : housing_upload ({date})')
     
     except:
+        logging.error(f'no data found : {date}')
         pass
 
 dag = DAG(
