@@ -135,10 +135,10 @@ def life_people_upload(**context):
 
         os.remove(local_file)
 
-        logging.info(f'Success : life_people_upload ({date})')
+        logging.info(f'Success : life_people_upload ({file_name})')
     
     except:
-        logging.error(f'no data found : {date}')
+        logging.error(f'no data found : {file_name}')
         pass
 
 def housing_upload(**context):
@@ -153,10 +153,10 @@ def housing_upload(**context):
 
         os.remove(local_file)
 
-        logging.info(f'Success : housing_upload ({date})')
+        logging.info(f'Success : housing_upload ({file_name})')
     
     except:
-        logging.error(f'no data found : {date}')
+        logging.error(f'no data found : {file_name}')
         pass
 
 dag = DAG(
