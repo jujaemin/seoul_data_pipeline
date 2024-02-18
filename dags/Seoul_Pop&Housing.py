@@ -96,8 +96,8 @@ def life_people_load(**context):
 
         return [local_file, file_name]
     
-    except:
-        logging.error(f'no data found : {date}')
+    except TypeError:
+        logging.error('no data found')
         return None
 
 def housing_load(**context):
@@ -119,8 +119,8 @@ def housing_load(**context):
 
         return [local_file, file_name]
     
-    except:
-        logging.error(f'no data found : {date}')
+    except TypeError:
+        logging.error('no data found')
         return None
 
 def life_people_upload(**context):
@@ -138,7 +138,7 @@ def life_people_upload(**context):
         logging.info(f'Success : life_people_upload ({file_name})')
     
     except:
-        logging.error(f'no data found : {file_name}')
+        logging.error('no data found')
         pass
 
 def housing_upload(**context):
@@ -156,7 +156,7 @@ def housing_upload(**context):
         logging.info(f'Success : housing_upload ({file_name})')
     
     except:
-        logging.error(f'no data found : {file_name}')
+        logging.error('no data found')
         pass
 
 dag = DAG(
