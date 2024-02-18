@@ -26,13 +26,22 @@ def life_people_extract(**context):
 def housing_extract(**context):
     link = context['params']['url']
     execution_date = context["execution_date"]
+    result = []
 
-    date = execution_date.date().strftime('%Y-%m-%d')
-    url = link + date.replace('-', '')
+    start_date = datetime.datetime(2024,1,1).date()
+    end_date = execution_date.date()
+    current_date = start_date
+
+    while current_date <= end_date:
+        date = current_date.strftime("%Y-%m-%d").replace('-','')
+        url = link + date
+
+        result.append([url, str(current_date)])
+        current_date += timedelta(days=1)
 
     logging.info(f'Success : housing_extract ({date})')
 
-    return [url, date]
+    return result
 
 def life_people_transform(**context):
     response = context["task_instance"].xcom_pull(key="return_value", task_ids="life_people_extract")
@@ -51,30 +60,35 @@ def life_people_transform(**context):
         return [life_people_data, date]
     
     except:
+
         logging.error(f'no data found : {date}')
+
         return None
 
 
 def housing_transform(**context):
-    response = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_extract")
+    responses = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_extract")
 
-    res = requests.get(response[0])
-    data = res.json()
-    date = response[1]
+    for response in responses:
+        res = requests.get(response[0])
+        result = []
+        data = res.json()
+        date = response[1]
 
-    try:
+        try:
 
-        df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
+            df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
-        housing_data = df[['DEAL_YMD', 'SGG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
-
-        logging.info(f'Success : housing_transform ({date})')
-
-        return [housing_data, date]
+            housing_data = df[['DEAL_YMD', 'SGG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
+            result.append([housing_data, date])
         
-    except:
-        logging.error(f'no data found : {date}')
-        return None
+        except:
+
+            pass
+
+        logging.info('Success : housing_transform')
+        
+        return result
 
 
 def life_people_load(**context):
@@ -100,10 +114,11 @@ def life_people_load(**context):
         logging.error('no data found')
         return None
 
-def housing_load(**context):
-    record = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_transform")
+def housing_upload(**context):
+    records = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_transform")
+    s3_hook = S3Hook(aws_conn_id='aws_default')
 
-    try:
+    for record in records:
         data = record[0]
         date = record[1]
 
@@ -115,13 +130,11 @@ def housing_load(**context):
 
         data.to_csv(local_file, header = False, index = False)
 
-        logging.info(f'Success : housing_load ({date})')
+        s3_hook.load_file(filename = local_file, key = 'raw_data/Seoul_housing/{}'.format(file_name), bucket_name = 'de-team5-s3-01', replace = True)
+        os.remove(local_file)
 
-        return [local_file, file_name]
+        logging.info(f'Success : housing_load ({date})')
     
-    except TypeError:
-        logging.error('no data found')
-        return None
 
 def life_people_upload(**context):
     file = context["task_instance"].xcom_pull(key="return_value", task_ids="life_people_load")
@@ -141,23 +154,6 @@ def life_people_upload(**context):
         logging.error('no data found')
         pass
 
-def housing_upload(**context):
-    file = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_load")
-    
-    try:
-        local_file = file[0]
-        file_name = file[1]
-
-        s3_hook = S3Hook(aws_conn_id='aws_default')
-        s3_hook.load_file(filename = local_file, key = 'raw_data/Seoul_housing/{}'.format(file_name), bucket_name = 'de-team5-s3-01', replace = True)
-
-        os.remove(local_file)
-
-        logging.info(f'Success : housing_upload ({file_name})')
-    
-    except:
-        logging.error('no data found')
-        pass
 
 dag = DAG(
     dag_id = 'Seoul_pop_and_Seoul_housing',
@@ -213,14 +209,6 @@ life_people_load = PythonOperator(
     },  
     dag = dag)
 
-housing_load = PythonOperator(
-    task_id = 'housing_load',
-    python_callable = housing_load,
-    provide_context=True,
-    params = { 
-    },  
-    dag = dag)
-
 life_people_upload = PythonOperator(
     task_id = 'life_people_upload',
     python_callable = life_people_upload,
@@ -238,4 +226,4 @@ housing_upload = PythonOperator(
     dag = dag)
 
 life_people_extract >> life_people_transform >> life_people_load >> life_people_upload
-housing_extract >> housing_transform >> housing_load >> housing_upload
+housing_extract >> housing_transform >> housing_upload
