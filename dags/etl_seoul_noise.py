@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.models import Variable
 from airflow.decorators import task
 from airflow.timetables.trigger import CronTriggerTimetable
+from s3 import S3Helper
 
 from datetime import datetime
 from datetime import timedelta
@@ -10,7 +11,6 @@ from typing import List
 
 import requests
 import csv
-import boto3
 import io
 import logging
 
@@ -47,12 +47,13 @@ def extract(api_key: str, reg_dttm: str) -> List[dict]:
             response = requests.get(url)
             logging.info("GET Request Success" + f" ({gu_name})")   
         except Exception as e:
-            logging.info("GET Request Failed" + f" ({gu_name})")
+            logging.info("GET Request Fail" + f" ({gu_name})")
             logging.info(e)
         
         # API 측으로부터 정상적인 메시지를 받았는 지 체크    
-        if response.json()['IotVdata017']['RESULT']['MESSAGE'] != "정상 처리되었습니다":
+        if 'IotVdata017' not in response.json():
             logging.info("Something wrong from the API, or you should check the date.")
+            logging.info(response.json())
             raise Exception("Something wrong from the API, or you should check the date.")
         else:
             responses.append(response.json())
@@ -75,19 +76,8 @@ def transform(responses: List[dict]) -> List[dict]:
     return transformed_records
 
 @task
-def load(aws_access_key_id, aws_secret_access_key, region_name, s3_bucket_name, s3_key, transformed_records):
+def load(s3_conn_id, bucket_name, key, transformed_records):
     logging.info("load start")
-    
-    # s3 Client 세팅
-    try:
-        s3_client = boto3.client('s3', 
-                                aws_access_key_id = aws_access_key_id,
-                                aws_secret_access_key = aws_secret_access_key,
-                                region_name = region_name)
-        logging.info("Set AWS Client Success")
-    except Exception as e:
-        logging.info("Set AWS Client Failed")
-        logging.info(e)
     
     # 임시 Buffer에 csv 형식으로 record를 저장
     csv_buffer = io.StringIO()
@@ -95,15 +85,15 @@ def load(aws_access_key_id, aws_secret_access_key, region_name, s3_bucket_name, 
     csv_writer.writeheader()
     csv_writer.writerows(transformed_records)
     
-    # s3에 업로드
+    string_data = csv_buffer.getvalue()
+    
+    # S3에 업로드
     try:
-        s3_client.put_object(Bucket = s3_bucket_name, 
-                            Key = s3_key,
-                            Body = csv_buffer.getvalue())
+        S3Helper.upload_string(s3_conn_id, string_data, key, bucket_name, replace=True)
         csv_buffer.close()
-        logging.info("File Upload Success")
+        logging.info("File Upload to S3 Success")
     except Exception as e:
-        logging.info("File Upload Failed")
+        logging.info("File Upload to S3 Fail")
         logging.info(e)
     
     logging.info("load end")
@@ -120,22 +110,20 @@ with DAG(
         # 'on_failure_callback': slack.on_failure_callback,
     }
 ) as dag:
-    # OPEN API 키 설정
+    # OPEN API 키 가져오기
     api_key = Variable.get("api_key_seoul")
-    # AWS 계정 및 자격 증명 설정
-    aws_access_key_id = Variable.get("authorization_aws_access_key_id")
-    aws_secret_access_key = Variable.get("authorization_aws_secret_access_key")
-    region_name = Variable.get("authorization_region_name")
+    # AWS Conn 정보 가져오기
+    aws_conn_id = 'aws_conn_id'
 
     # API로부터 가져올 데이터의 등록일시 지정
-    target_date = datetime.now() - timedelta(days=10)
+    target_date = datetime.now() - timedelta(days=13)
     reg_dttm = target_date.strftime("%Y-%m-%d")
 
-    # S3 버킷 및 파일 경로 설정
+    # S3 버킷 및 Key 지정
     s3_bucket_name = "de-team5-s3-01"
     s3_key = "raw_data/seoul_noise/" + reg_dttm + ".csv"
     
     # extract & transform
     transformed_records = transform(extract(api_key, reg_dttm))
     # load
-    load(aws_access_key_id, aws_secret_access_key, region_name, s3_bucket_name, s3_key, transformed_records)
+    load(aws_conn_id, s3_bucket_name, s3_key, transformed_records)
