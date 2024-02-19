@@ -1,7 +1,7 @@
 from airflow.decorators import dag, task
 from airflow.models import Variable
-from utils import RequestTool, FileManager
-from s3 import S3Helper
+from plugins.utils import RequestTool, FileManager
+from plugins.s3 import S3Helper
 from datetime import datetime, timedelta
 import logging
 import pandas as pd
@@ -19,14 +19,12 @@ bucket_name = Variable.get('bucket_name')
 s3_key_path = 'raw_data/seoul_road/'
 base_url = 'https://t-data.seoul.go.kr/apig/apiman-gateway/tapi/TopisIccStTimesRoadDivTrfLivingStats/1.0'
 
-
 @dag(
     schedule_interval='@daily',
     catchup=True,
     default_args=default_args
 )
 def etl_seoul_road():
-
     @task()
     def prepare(execution_date: str):
         # 데이터 자체는 1시간 단위지만, API 데이터 업데이트 주기가 하루에 1번 입니다. 즉, 하루 치 데이터가 모여서 한 번에 들어옵니다.
@@ -69,7 +67,6 @@ def etl_seoul_road():
 
         logging.info(
             f'Data has been transformed to CSV. The filename is {filename}')
-
         return filename
 
     @task()
@@ -94,7 +91,6 @@ def etl_seoul_road():
     json = extract(req_params)
     filename = transform(json)
     load(filename)
-
 
 # DAG instance
 etl_seoul_road = etl_seoul_road()
