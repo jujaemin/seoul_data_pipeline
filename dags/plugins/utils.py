@@ -32,6 +32,6 @@ class FileManager(AirflowPlugin):
         os.remove(filename)
         
     @staticmethod
-    def mkdir(path):
+    def mkdir(path: str):
         if not os.path.exists(path):
             os.makedirs(path)

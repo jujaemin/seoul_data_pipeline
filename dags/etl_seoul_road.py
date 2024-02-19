@@ -39,7 +39,7 @@ def prepare(execution_date: str):
 
 
 @task()
-def extract(req_params: dict, execution_date: str):
+def extract(req_params: dict):
     verify = False
     json_result = RequestTool.api_request(base_url, verify, req_params)
     logging.info('JSON data has been extracted.')
@@ -68,7 +68,7 @@ def transform(json_extracted, execution_date: str):
 
 
 @task()
-def load(filename: str, execution_date: str, **context):
+def load(filename: str, execution_date: str):
     s3_conn_id = 'aws_conn_id'
     bucket_name = "de-team5-s3-01"
     key = s3_key_path + f'{execution_date}.csv'
