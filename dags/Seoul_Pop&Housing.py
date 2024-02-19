@@ -86,9 +86,9 @@ def housing_transform(**context):
 
             pass
 
-        logging.info('Success : housing_transform')
+    logging.info('Success : housing_transform')
         
-        return result
+    return result
 
 
 def life_people_load(**context):
