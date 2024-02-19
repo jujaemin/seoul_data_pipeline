@@ -2,7 +2,9 @@ from airflow import DAG
 from airflow.models import Variable
 from airflow.decorators import task
 from airflow.timetables.trigger import CronTriggerTimetable
+
 from s3 import S3Helper
+from utils import RequestTool
 
 from datetime import datetime
 from datetime import timedelta
@@ -43,20 +45,15 @@ def extract(api_key: str, reg_dttm: str) -> List[dict]:
                 reg_dttm
         
         # GET Request
-        try:
-            response = requests.get(url)
-            logging.info("GET Request Success" + f" ({gu_name})")   
-        except Exception as e:
-            logging.info("GET Request Fail" + f" ({gu_name})")
-            logging.info(e)
+        response = RequestTool.api_request(url, verify=True, params=None)
         
         # API 측으로부터 정상적인 메시지를 받았는 지 체크    
-        if 'IotVdata017' not in response.json():
+        if 'IotVdata017' not in response:
             logging.info("Something wrong from the API, or you should check the date.")
-            logging.info(response.json())
+            logging.info(response)
             raise Exception("Something wrong from the API, or you should check the date.")
         else:
-            responses.append(response.json())
+            responses.append(response)
     
     logging.info("extract end")
     return responses
