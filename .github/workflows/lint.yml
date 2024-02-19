@@ -1,0 +1,21 @@
+name: lint using Ruff
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["dev"]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Access to repo
+        uses: actions/checkout@v3
+      
+      - name: Ruff check
+        uses: jpetrucciani/ruff-check@main
+        with:
+          path: './dags'
