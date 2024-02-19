@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.models import Variable
 from airflow.decorators import task
+from airflow.timetables.trigger import CronTriggerTimetable
 
 from datetime import datetime
 from datetime import timedelta
