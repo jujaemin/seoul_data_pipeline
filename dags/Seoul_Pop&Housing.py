@@ -68,10 +68,10 @@ def life_people_transform(**context):
 
 def housing_transform(**context):
     responses = context["task_instance"].xcom_pull(key="return_value", task_ids="housing_extract")
+    result = []
 
     for response in responses:
         res = requests.get(response[0])
-        result = []
         data = res.json()
         date = response[1]
 
