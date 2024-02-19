@@ -14,7 +14,7 @@ import logging
 
 def life_people_extract(**context):
     link = context['params']['url']
-    execution_date = context["execution_date"] - timedelta(days=4)
+    execution_date = context["execution_date"] - timedelta(days=5)
 
     date = execution_date.date().strftime('%Y-%m-%d')
     url = link + date.replace('-', '')
