@@ -70,7 +70,7 @@ def upload(records):
         os.makedirs(file_path, exist_ok=True)
         local_file = os.path.join(file_path, file_name)
 
-        data.to_csv(local_file, header = False, index = False)
+        data.to_csv(local_file, header = False, index = False, encoding='utf-8-sig')
 
         S3Helper.upload(aws_conn_id, bucket_name, s3_key, local_file, True)
 
