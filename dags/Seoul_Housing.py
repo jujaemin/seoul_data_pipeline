@@ -106,7 +106,6 @@ with DAG(
         'retry_delay': timedelta(minutes=3),
     }
 ) as dag:
-    url = Variable.get('housing_url')
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
     key = 'raw_data/seoul_housing/'
