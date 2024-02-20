@@ -34,10 +34,18 @@ def extract(req_params: dict):
             "MSRDT_DE": date
             }
         
-        data = RequestTool.api_request(base_url, verify, req_params)
+        try:
+        
+            data = RequestTool.api_request(base_url, verify, req_params)
 
-        result.append([data, date])
-        current_date += timedelta(days=1)
+            result.append([data, str(current_date)])
+            current_date += timedelta(days=1)
+
+        except:
+            
+            current_date += timedelta(days=1)
+            pass
+            
 
     logging.info('Success : housing_extract')
 
@@ -49,19 +57,14 @@ def transform(responses):
 
     for response in responses:
 
-        try:
-        
-            data = response[0]
-            date = response[1]
+        data = response[0]
+        date = response[1]
 
-            df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
+        df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
-            housing_data = df[['DEAL_YMD', 'SGG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
-            result.append([housing_data, date])
-        
-        except:
+        housing_data = df[['DEAL_YMD', 'SGG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
+        result.append([housing_data, date])
 
-            pass
 
     logging.info('Success : housing_transform')
         
