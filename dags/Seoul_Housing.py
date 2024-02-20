@@ -48,11 +48,11 @@ def transform(responses):
     result = []
 
     for response in responses:
-        
-        data = response[0]
-        date = response[1]
 
         try:
+        
+            data = response[0]
+            date = response[1]
 
             df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
