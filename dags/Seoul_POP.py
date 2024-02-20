@@ -59,7 +59,7 @@ def load(record):
         os.makedirs(file_path, exist_ok=True)
         local_file = os.path.join(file_path, file_name)
 
-        data.to_csv(local_file, header = False, index = False)
+        data.to_csv(local_file, header = False, index = False, encoding='utf-8-sig')
 
         logging.info(f'Success : life_people_load ({date})')
 
