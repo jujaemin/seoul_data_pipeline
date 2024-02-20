@@ -92,7 +92,7 @@ with DAG(
     url = Variable.get('housing_url')
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
-    key = 'raw_data/Seoul_housing/'
+    key = 'raw_data/seoul_housing/'
 
     records = transform(extract(url))
 

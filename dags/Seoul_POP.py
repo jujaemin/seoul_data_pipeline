@@ -104,7 +104,7 @@ with DAG(
     url = Variable.get('pop_url')
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
-    key = 'raw_data/Seoul_POP/'
+    key = 'raw_data/seoul_pop/'
 
     records = transform(extract(url))
 
