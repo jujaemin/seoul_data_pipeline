@@ -15,7 +15,7 @@ import logging
 @task
 def extract(url,**context):
     link = url
-    execution_date = context["execution_date"] - timedelta(days=5)
+    execution_date = context["execution_date"] - timedelta(days=4)
 
     date = execution_date.date().strftime('%Y-%m-%d')
     url = link + date.replace('-', '')
