@@ -54,19 +54,16 @@ def load(record):
     try:
         data = record
 
-        file_path = 'temp/Seoul_pop/'
-        file_name = '{}.csv'.format(execution_date)
-
+        file_name = f'{execution_date}.csv'
+        file_path = f'temp/Seoul_pop/{file_name}'
+        
         FileManager.mkdir(file_path)
 
-        os.makedirs(file_path, exist_ok=True)
-        local_file = os.path.join(file_path, file_name)
-
-        data.to_csv(local_file, header = False, index = False, encoding='utf-8-sig')
+        data.to_csv(file_path, header = False, index = False, encoding='utf-8-sig')
 
         logging.info(f'Success : life_people_load')
 
-        return local_file
+        return file_path
     
     except TypeError:
         logging.error('no data found')
