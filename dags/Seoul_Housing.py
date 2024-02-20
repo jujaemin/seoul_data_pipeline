@@ -77,21 +77,17 @@ def upload(records):
         data = record[0]
         date = record[1]
 
-        file_path = 'temp/Seoul_housing/'
-        file_name = '{}.csv'.format(date)
+        file_name = f'{date}.csv'
 
+        file_path = f'temp/Seoul_housing/{file_name}'
         FileManager.mkdir(file_path)
 
         s3_key = key + str(file_name)
 
-        local_file = os.path.join(file_path, file_name)
-        os.makedirs(local_file, exist_ok=True)
+        data.to_csv(file_path, header = False, index = False, encoding='utf-8-sig')
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, file_path, True)
 
-        data.to_csv(local_file, header = False, index = False, encoding='utf-8-sig')
-
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, local_file, True)
-
-        FileManager.remove(local_file)
+        FileManager.remove(file_path)
 
         logging.info('Success : housing_load')
 
