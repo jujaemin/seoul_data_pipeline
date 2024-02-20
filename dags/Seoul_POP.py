@@ -25,7 +25,7 @@ def extract(req_params: dict):
     verify=False
     result = RequestTool.api_request(base_url, verify, req_params)
 
-    logging.info(f'Success : life_people_extract ({date})')
+    logging.info(f'Success : life_people_extract')
 
     return result
 
@@ -38,13 +38,13 @@ def transform(response):
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
-        logging.info(f'Success : life_people_transform ({date})')
+        logging.info(f'Success : life_people_transform')
 
         return life_people_data
     
     except:
 
-        logging.error(f'no data found : {date}')
+        logging.error(f'no data found')
 
         return None
 
@@ -64,7 +64,7 @@ def load(record):
 
         data.to_csv(local_file, header = False, index = False, encoding='utf-8-sig')
 
-        logging.info(f'Success : life_people_load ({date})')
+        logging.info(f'Success : life_people_load')
 
         return local_file
     
