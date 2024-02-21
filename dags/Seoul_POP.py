@@ -17,7 +17,7 @@ req_params = {
     "SERVICE": 'SPOP_DAILYSUM_JACHI',
     "START_INDEX": 1,
     "END_INDEX": 1000,
-    "MSRDT_DE": execution_date).replace('-', '')
+    "MSRDT_DE": execution_date.replace('-', '')
     }
 
 @task
