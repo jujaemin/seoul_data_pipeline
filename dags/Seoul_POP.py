@@ -17,7 +17,7 @@ req_params = {
     "SERVICE": 'SPOP_DAILYSUM_JACHI',
     "START_INDEX": 1,
     "END_INDEX": 1000,
-    "MSRDT_DE": '{{ ds_nodash }}'
+    "MSRDT_DE": execution_date).replace('-', '')
     }
 
 @task
@@ -99,7 +99,7 @@ with DAG(
     default_args = {
         'retries': 1,
         'retry_delay': timedelta(minutes=3),
-        'execution_date': '{{ds}}',
+        'execution_date': '{{  macros.ds_add(ds, -4) }}',
     }
 ) as dag:
     aws_conn_id='aws_default'
