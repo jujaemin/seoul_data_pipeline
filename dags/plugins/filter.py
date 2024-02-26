@@ -6,7 +6,7 @@ columns = {'pop': ['날짜', '자치구', '생활인구수'], 'housing': ['계�
            'road': [], 'noise': [], 'air': [], 'welfare': []}
 
 
-class Housing(BaseModel):
+class housing(BaseModel):
             계약일: date
             자치구: str
             가격: int
