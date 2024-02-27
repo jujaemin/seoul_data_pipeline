@@ -31,9 +31,9 @@ def cleaning(**context):
 
         result_data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, local, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
-        FileManager.remove(local)
+        FileManager.remove(path)
     
     except:
         pass
