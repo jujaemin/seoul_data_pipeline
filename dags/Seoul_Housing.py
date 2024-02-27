@@ -79,7 +79,7 @@ def upload(records):
 
         file_name = f'{date}.csv'
 
-        file_path = 'temp/Seoul_housing'
+        file_path = 'temp/seoul_housing'
         FileManager.mkdir(file_path)
 
         path = file_path + '/' + file_name
