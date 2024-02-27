@@ -44,7 +44,7 @@ def transform(response):
     
     except:
 
-        logging.error(f'no data found')
+        logging.error('no data found')
 
         return None
 
@@ -55,7 +55,7 @@ def load(record):
         data = record
 
         file_name = f'{execution_date}.csv'
-        file_path = f'temp/Seoul_pop'
+        file_path = f'temp/seoul_pop'
 
         path = file_path + '/' + file_name
         
