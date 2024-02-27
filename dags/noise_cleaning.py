@@ -20,7 +20,7 @@ def cleaning(**context):
         result_data = Cleaning.filter(result_data, 'noise')
 
 
-        file_path = f'/works/'
+        file_path = '/temp/'
         file_name = '{}.csv'.format(execution_date)
         local = file_path+file_name
 
