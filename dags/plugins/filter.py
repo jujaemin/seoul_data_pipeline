@@ -5,7 +5,8 @@ import pandas as pd
 columns = {'air': ['날짜', '권역', '자치구', '미세먼지', '초미세먼지', '오존', '이산화질소농도', '일산화탄소농도', '아황산가스농도'],
            'pop': ['날짜', '자치구', '생활인구수'], 'housing': ['계약일', '자치구', '가격', '면적', '층수', '건축년도', '건물용도'],
            'road': ['날짜', '생활권역구분코드', '권역', '첨두시구분', '평균속도', '요일코드', '요일그룹코드', '시간코드', '시간대설명'], 
-           'noise': ['측정시간', '자치구', '소음평균']}
+           'welfare': ['시설명', '시설코드', '시설종류명', '시설종류상세명', '자치구구분', '시설장명', '시군구코드', '자치구', '시설주소',
+                       '정원', '현인원', '전화번호', '우편번호'], 'noise': ['지역', '자치구', '행정동','소음평균', '날짜']}
 
 en_to_ko = {'Jongno-gu': '종로구', 'Jung-gu': '중구', 'Yongsan-gu': '용산구', 'Seongdong-gu': '성동구', 'Gwangjin-gu': '광진구', 'Dongdaemun-gu': '동대문구',
             'Jungnang-gu': '중랑구', 'Seongbuk-gu': '성북구', 'Gangbuk-gu': '강북구', 'Dobong-gu': '도봉구', 'Nowon-gu': '노원구', 'Eunpyeong-gu': '은평구',
@@ -13,7 +14,7 @@ en_to_ko = {'Jongno-gu': '종로구', 'Jung-gu': '중구', 'Yongsan-gu': '용산
             'Yeongdeungpo-gu': '영등포구', 'Dongjak-gu': '동작구', 'Gwanak-gu': '관악구', 'Seocho-gu': '서초구', 'Gangnam-gu': '강남구', 'Songpa-gu': '송파구',
             'Gangdong-gu': '강동구'}
 
-column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6], 'road': [0,1,2,3,4,5,6,7,8], 'noise': [2,4,31]}
+column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6], 'road': [0,1,2,3,4,5,6,7,8], 'welfare': [0,1,2,3,4,5,6,7,8,9,10,11,12], 'noise': [3,4,5,31,63]}
 
 class air(BaseModel):
     날짜: date
@@ -147,29 +148,62 @@ class road(BaseModel):
         return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
     
 
-class noise(BaseModel):
-    측정시간: datetime
+class welfare(BaseModel):
+    시설명: str
+    시설코드: str
+    시설종류명: str
+    시설종류상세명: str
+    자치구구분: str
+    시설장명: str
+    시군구코드: int
     자치구: str
+    시설주소: str
+    정원: int
+    현인원: int
+    전화번호: str
+    우편번호: int
+
+    @classmethod
+    #데이터프레임 행마다
+    def from_dataframe_row(cls, row):
+        return cls(**row)
+        
+    @validator('시설명','시설코드','시설종류명','시설종류상세명','자치구구분','시설장명','자치구','시설주소','전화번호')
+    def handle_string_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if pd.isna(value) else value
+
+    @validator('시군구코드','정원','현인원','우편번호')
+    def handle_numeric_columns(cls, value):
+        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
+        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+
+
+class noise(BaseModel):
+    지역: str
+    자치구: str
+    행정동: str
     소음평균: float
+    날짜: datetime
 
     @classmethod
     #데이터프레임 행마다
     def from_dataframe_row(cls, row):
         return cls(**row)
     
-    @validator('측정시간', pre=True, always=True)
+    @validator('날짜', pre=True, always=True)
     #날짜 데이터 타입 처리
     def parse_date(cls, value):
         if isinstance(value, int):
             value = str(value)
 
-        return datetime(int(value[:4]), int(value[5:7]), int(value[8:10]), int(value[11:13]), int(value[14:16]), int(value[17:]))
+        return datetime(int(value[:4]), int(value[5:7]), int(value[8:10]), int(value[11:13]), int(value[14:16]), int(value[17:19]))
     
     @validator('자치구')
     def translate(cls, value):
         return en_to_ko[value]
         
-    @validator('자치구')
+    @validator('지역', '자치구', '행정동')
     def handle_string_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
