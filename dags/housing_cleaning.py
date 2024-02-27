@@ -21,7 +21,7 @@ def cleaning(**context):
 
         print(data)
 
-        file_path = 'temp/seoul_housing'
+        file_path = 'temp/seoul_housing/'
         file_name = '{}.csv'.format(execution_date)
         local = file_path+file_name
 
