@@ -65,7 +65,7 @@ def load(record):
 
         logging.info(f'Success : life_people_load')
 
-        return path
+        return [path, file_name]
     
     except TypeError:
         logging.error('no data found')
@@ -76,12 +76,12 @@ def load(record):
 def upload(file):
     
     try:
-        local_file = file
-        file_name = execution_date
+        local_file = file[0]
+        file_name = file[1]
 
         s3_key = key + str(file_name)
 
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, file_name, True)
 
         FileManager.remove(local_file)
 
