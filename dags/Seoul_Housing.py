@@ -79,7 +79,7 @@ def upload(records):
 
         file_name = f'{date}.csv'
 
-        file_path = 'temp/Seoul_housing'
+        file_path = 'temp/seoul_housing'
         FileManager.mkdir(file_path)
 
         path = file_path + '/' + file_name
@@ -87,9 +87,9 @@ def upload(records):
         s3_key = key + str(file_name)
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, file_path, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, True)
 
-        FileManager.remove(file_path)
+        FileManager.remove(path)
 
         logging.info('Success : housing_load')
 
@@ -113,4 +113,3 @@ with DAG(
     records = transform(extract(url))
 
     upload(records)
-
