@@ -55,11 +55,13 @@ def load(record):
         data = record
 
         file_name = f'{execution_date}.csv'
-        file_path = f'temp/Seoul_pop/{file_name}'
+        file_path = f'temp/Seoul_pop'
+
+        path = file_path + '/' + file_name
         
         FileManager.mkdir(file_path)
 
-        data.to_csv(file_path, header = False, index = False, encoding='utf-8-sig')
+        data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
         logging.info(f'Success : life_people_load')
 
