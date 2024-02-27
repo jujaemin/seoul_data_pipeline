@@ -23,15 +23,18 @@ def cleaning(**context):
 
         file_path = 'temp/seoul_road/'
         file_name = '{}.csv'.format(execution_date)
-        local = file_path+file_name
+
+        FileManager.mkdir(file_path)
+        
+        path = file_path+file_name
 
         s3_key = 'cleaned_data/seoul_road/' + file_name
 
         result_data.to_csv(local, header = False, index = False, encoding='utf-8-sig')
 
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, local, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
-        FileManager.remove(local)
+        FileManager.remove(path)
     
     except:
         pass
