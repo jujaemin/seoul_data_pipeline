@@ -79,7 +79,7 @@ def upload(records):
 
         file_name = f'{date}.csv'
 
-        file_path = f'temp/Seoul_housing/'
+        file_path = 'temp/Seoul_housing'
         FileManager.mkdir(file_path)
 
         s3_key = key + str(file_name)
