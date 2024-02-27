@@ -44,7 +44,7 @@ def transform(response):
     
     except:
 
-        logging.error(f'no data found')
+        logging.error('no data found')
 
         return None
 
@@ -55,17 +55,17 @@ def load(record):
         data = record
 
         file_name = f'{execution_date}.csv'
-        file_path = f'temp/Seoul_pop'
-        
-        FileManager.mkdir(file_path)
+        file_path = f'temp/seoul_pop'
 
         path = file_path + '/' + file_name
+        
+        FileManager.mkdir(file_path)
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
         logging.info(f'Success : life_people_load')
 
-        return file_path
+        return path
     
     except TypeError:
         logging.error('no data found')
@@ -81,7 +81,7 @@ def upload(file):
 
         s3_key = key + str(file_name)
 
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, local_file, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, True)
 
         FileManager.remove(local_file)
 
