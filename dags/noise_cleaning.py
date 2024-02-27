@@ -22,11 +22,14 @@ def cleaning(**context):
 
         file_path = 'temp/seoul_noise/'
         file_name = '{}.csv'.format(execution_date)
-        local = file_path+file_name
+
+        FileManager.mkdir(file_path)
+        
+        path = file_path+file_name
 
         s3_key = 'cleaned_data/seoul_noise/' + file_name
 
-        result_data.to_csv(local, header = False, index = False, encoding='utf-8-sig')
+        result_data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
         S3Helper.upload(aws_conn_id, bucket_name, s3_key, local, True)
 
