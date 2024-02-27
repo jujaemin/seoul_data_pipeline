@@ -87,9 +87,9 @@ def upload(records):
         s3_key = key + str(file_name)
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, file_path, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
-        FileManager.remove(file_path)
+        FileManager.remove(path)
 
         logging.info('Success : housing_load')
 
