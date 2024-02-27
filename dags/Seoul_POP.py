@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import FileManager
+from plugins.utils import FileManager, RequestTool
 from plugins.s3 import S3Helper
 
 import requests
@@ -11,38 +11,40 @@ import datetime
 import os
 import logging
 
+req_params = {
+    "KEY": Variable.get('api_key_seoul'),
+    "TYPE": 'json',
+    "SERVICE": 'SPOP_DAILYSUM_JACHI',
+    "START_INDEX": 1,
+    "END_INDEX": 1000,
+    "MSRDT_DE": execution_date.replace('-', '')
+    }
 
 @task
-def extract(url,**context):
-    link = url
-    execution_date = context["execution_date"] - timedelta(days=4)
+def extract(req_params: dict):
+    verify=False
+    result = RequestTool.api_request(base_url, verify, req_params)
 
-    date = execution_date.date().strftime('%Y-%m-%d')
-    url = link + date.replace('-', '')
+    logging.info(f'Success : life_people_extract')
 
-    logging.info(f'Success : life_people_extract ({date})')
-
-    return [url, date]
+    return result
 
 @task
 def transform(response):
 
-    res = requests.get(response[0])
-    data = res.json()
-    date = response[1]
-
+    data = response
     try:
         df = pd.DataFrame(data['SPOP_DAILYSUM_JACHI']['row'])
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
-        logging.info(f'Success : life_people_transform ({date})')
+        logging.info(f'Success : life_people_transform')
 
-        return [life_people_data, date]
+        return life_people_data
     
     except:
 
-        logging.error(f'no data found : {date}')
+        logging.error(f'no data found')
 
         return None
 
@@ -50,20 +52,20 @@ def transform(response):
 def load(record):
 
     try:
-        data = record[0]
-        date = record[1]
+        data = record
 
-        file_path = 'temp/Seoul_pop/'
-        file_name = '{}.csv'.format(date)
+        file_name = f'{execution_date}.csv'
+        file_path = f'temp/Seoul_pop'
+        
+        FileManager.mkdir(file_path)
 
-        os.makedirs(file_path, exist_ok=True)
-        local_file = os.path.join(file_path, file_name)
+        path = file_path + '/' + file_name
 
-        data.to_csv(local_file, header = False, index = False, encoding='utf-8-sig')
+        data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
-        logging.info(f'Success : life_people_load ({date})')
+        logging.info(f'Success : life_people_load')
 
-        return [local_file, file_name]
+        return file_path
     
     except TypeError:
         logging.error('no data found')
@@ -74,8 +76,8 @@ def load(record):
 def upload(file):
     
     try:
-        local_file = file[0]
-        file_name = file[1]
+        local_file = file
+        file_name = execution_date
 
         s3_key = key + str(file_name)
 
@@ -99,12 +101,13 @@ with DAG(
     default_args = {
         'retries': 1,
         'retry_delay': timedelta(minutes=3),
+        'execution_date': '{{  macros.ds_add(ds, -4) }}',
     }
 ) as dag:
-    url = Variable.get('pop_url')
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
     key = 'raw_data/seoul_pop/'
+    base_url = 'http://openAPI.seoul.go.kr:8088'
 
     records = transform(extract(url))
 
