@@ -20,8 +20,8 @@ class air(BaseModel):
     날짜: date
     권역: str
     자치구: str
-    미세먼지: int
-    초미세먼지: int
+    미세먼지: float
+    초미세먼지: float
     오존: float
     이산화질소농도: float
     일산화탄소농도: float
