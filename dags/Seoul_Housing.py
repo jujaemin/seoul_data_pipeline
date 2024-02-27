@@ -62,7 +62,7 @@ def upload(records):
         data = record[0]
         date = record[1]
 
-        file_path = '/works/Seoul_housing/'
+        file_path = '/temp/Seoul_housing/'
         file_name = '{}.csv'.format(date)
 
         s3_key = key + str(file_name)
