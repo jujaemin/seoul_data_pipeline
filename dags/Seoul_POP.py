@@ -53,7 +53,7 @@ def load(record):
         data = record[0]
         date = record[1]
 
-        file_path = '/temp/Seoul_pop/'
+        file_path = 'temp/Seoul_pop/'
         file_name = '{}.csv'.format(date)
 
         os.makedirs(file_path, exist_ok=True)
