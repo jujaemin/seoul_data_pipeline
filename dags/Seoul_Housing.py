@@ -47,17 +47,20 @@ def transform(responses):
 
     for response in responses:
 
-        res = response[0]
-        date = response[1]
+        try:
+            res = response[0]
+            date = response[1]
         
-        res = requests.get(response[0])
-        data = res.json()
+            res = requests.get(response[0])
+            data = res.json()
 
-        df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
+            df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
-        housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
-        result.append([housing_data, date])
-
+            housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
+            result.append([housing_data, date])
+        
+        except:
+            pass
 
     logging.info('Success : housing_transform')
         
