@@ -13,8 +13,7 @@ import logging
 
 
 @task
-def extract(req_params: dict):
-    verify=False
+def extract(base_url):
     result = []
 
     start_date = datetime.datetime(2024,1,1).date()
@@ -27,7 +26,7 @@ def extract(req_params: dict):
 
         try:
         
-            url = f'http://openapi.seoul.go.kr:8088/{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
+            url = base_url+f'{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
 
             result.append([url, str(current_date)])
             current_date += timedelta(days=1)
@@ -104,6 +103,6 @@ with DAG(
     base_url = 'http://openAPI.seoul.go.kr:8088'
 
 
-    records = transform(extract(url))
+    records = transform(extract(base_url))
 
     upload(records)
