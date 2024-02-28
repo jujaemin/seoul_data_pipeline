@@ -26,6 +26,6 @@ jobs:
           aws-region: 'us-east-1'
       # S3에 업로드
       - name: Sync to S3
-        run: aws s3 sync ./dags s3://${{ secrets.AWS_S3_BUCKET }}/${{ secrets.AWS_DESTINATION_KEY }}/dags --delete
+        run: aws s3 sync ./dags s3://${{ secrets.AWS_BUCKET }}/${{ secrets.AWS_DESTINATION_KEY }}/dags --delete
           
           
