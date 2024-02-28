@@ -23,20 +23,12 @@ def extract(base_url):
     while current_date <= end_date:
         date = current_date.strftime("%Y-%m-%d").replace('-','')
         api= Variable.get('api_key_seoul')
-
-        try:
         
-            url = base_url+f'{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
+        url = base_url+f'{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
 
-            result.append([url, str(current_date)])
-            current_date += timedelta(days=1)
-
-        except:
+        result.append([url, str(current_date)])
+        current_date += timedelta(days=1)
             
-            current_date += timedelta(days=1)
-            pass
-            
-
     logging.info('Success : housing_extract')
 
     return result
