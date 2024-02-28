@@ -18,14 +18,14 @@ column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,
 
 class air(BaseModel):
     날짜: date
-    권역: str
+    권역: Union[str, None]
     자치구: str
-    미세먼지: float
-    초미세먼지: float
-    오존: float
-    이산화질소농도: float
-    일산화탄소농도: float
-    아황산가스농도: float
+    미세먼지: Union[float, None]
+    초미세먼지: Union[float, None]
+    오존: Union[float, None]
+    이산화질소농도: Union[float, None]
+    일산화탄소농도: Union[float, None]
+    아황산가스농도: Union[float, None]
 
     @classmethod
     #데이터프레임 행마다
@@ -54,7 +54,7 @@ class air(BaseModel):
 class pop(BaseModel):
     날짜: date
     자치구: str
-    생활인구수: float
+    생활인구수: Union[float, None]
 
     @classmethod
     #데이터프레임 행마다
@@ -83,12 +83,12 @@ class pop(BaseModel):
 class housing(BaseModel):
     계약일: date
     자치구: str
-    건물명: str
-    가격: int
-    면적: float
-    층수: int
-    건축년도: int
-    건물용도: str
+    건물명: Union[str, None]
+    가격: Union[int, None]
+    면적: Union[float, None]
+    층수: Union[int, None]
+    건축년도: Union[int, None]
+    건물용도: Union[str, None]
 
     @classmethod
     def from_dataframe_row(cls, row):
@@ -116,14 +116,14 @@ class housing(BaseModel):
 
 class road(BaseModel):
     날짜: date
-    생활권역구분코드: int
+    생활권역구분코드: Union[int, None]
     권역: str
-    첨두시구분: str
-    평균속도: float
-    요일코드: int
-    요일그룹코드: int
-    시간코드: int
-    시간대설명: str
+    첨두시구분: Union[str, None]
+    평균속도: Union[float, None]
+    요일코드: Union[int, None]
+    요일그룹코드: Union[int, None]
+    시간코드: Union[int, None]
+    시간대설명: Union[str, None]
 
     @classmethod
     #데이터프레임 행마다
@@ -150,19 +150,19 @@ class road(BaseModel):
     
 
 class welfare(BaseModel):
-    시설명: str
-    시설코드: str
-    시설종류명: str
-    시설종류상세명: str
-    자치구구분: str
-    시설장명: str
-    시군구코드: int
+    시설명: Union[str, None]
+    시설코드: Union[str, None]
+    시설종류명: Union[str, None]
+    시설종류상세명: Union[str, None]
+    자치구구분: Union[str, None]
+    시설장명: Union[str, None]
+    시군구코드: Union[int, None]
     자치구: str
-    시설주소: str
-    정원: int
-    현인원: int
-    전화번호: str
-    우편번호: int
+    시설주소: Union[str, None]
+    정원: Union[int, None]
+    현인원: Union[int, None]
+    전화번호: Union[str, None]
+    우편번호: Union[int, None]
 
     @classmethod
     #데이터프레임 행마다
@@ -182,9 +182,9 @@ class welfare(BaseModel):
 
 class noise(BaseModel):
     지역: str
-    자치구: str
-    행정동: str
-    소음평균: float
+    자치구: Union[str, None]
+    행정동: Union[str, None]
+    소음평균: Union[float, None]
     날짜: datetime
 
     @classmethod
