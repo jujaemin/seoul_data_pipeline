@@ -8,8 +8,15 @@ class RequestTool(AirflowPlugin):
     @classmethod
     def api_request(api_url: str, verify: bool, params: dict):
         try:
-            response = requests.get(api_url, verify=verify, params=params)
-            response.raise_for_status()
+            #추후 api_url 을 Variable 형태로 변환해서 사용하는걸로 변경 필요
+            if api_url == 'http://openAPI.seoul.go.kr:8088':
+                for value in params.values:
+                    api_url += f'/{value}'
+                response = requests.get(api_url, verify=verify)
+                response.raise_for_status()
+            elif api_url == 'https://t-data.seoul.go.kr/apig/apiman-gateway/tapi/TopisIccStTimesRoadDivTrfLivingStats/1.0':
+                response = requests.get(api_url, verify=verify, params=params)
+                response.raise_for_status()
 
             return response.json()
 
@@ -32,6 +39,6 @@ class FileManager(AirflowPlugin):
         os.remove(filename)
         
     @staticmethod
-    def mkdir(path):
+    def mkdir(path: str):
         if not os.path.exists(path):
             os.makedirs(path)

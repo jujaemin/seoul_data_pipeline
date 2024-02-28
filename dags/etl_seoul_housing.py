@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import FileManager
+from plugins.utils import FileManager, RequestTool
 from plugins.s3 import S3Helper
 
 import requests
@@ -11,9 +11,10 @@ import datetime
 import os
 import logging
 
+
 @task
-def extract(url):
-    link = url
+def extract(base_url):
+
     result = []
 
     start_date = datetime.datetime(2024,1,1).date()
@@ -22,12 +23,16 @@ def extract(url):
 
     while current_date <= end_date:
         date = current_date.strftime("%Y-%m-%d").replace('-','')
-        url = link + date
+        api= Variable.get('api_key_seoul')
+
+        
+        url = base_url+f'{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
 
         result.append([url, str(current_date)])
         current_date += timedelta(days=1)
+            
 
-    logging.info(f'Success : housing_extract')
+    logging.info('Success : housing_extract')
 
     return result
 
@@ -36,19 +41,21 @@ def transform(responses):
     result = []
 
     for response in responses:
-        res = requests.get(response[0])
-        data = res.json()
-        date = response[1]
 
         try:
+            res = response[0]
+            date = response[1]
+        
+            res = requests.get(response[0])
+            data = res.json()
+
 
             df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
-            housing_data = df[['DEAL_YMD', 'SGG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
+            housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
             result.append([housing_data, date])
         
         except:
-
             pass
 
     logging.info('Success : housing_transform')
@@ -62,19 +69,21 @@ def upload(records):
         data = record[0]
         date = record[1]
 
-        file_path = '/works/Seoul_housing/'
-        file_name = '{}.csv'.format(date)
+        file_name = f'{date}.csv'
+
+        file_path = 'temp/seoul_housing'
+        FileManager.mkdir(file_path)
+
+        path = file_path + '/' + file_name
 
         s3_key = key + str(file_name)
 
-        os.makedirs(file_path, exist_ok=True)
-        local_file = os.path.join(file_path, file_name)
+        data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
-        data.to_csv(local_file, header = False, index = False, encoding='utf-8-sig')
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, local_file, True)
 
-        FileManager.remove(local_file)
+        FileManager.remove(path)
 
         logging.info('Success : housing_load')
 
@@ -89,12 +98,13 @@ with DAG(
         'retry_delay': timedelta(minutes=3),
     }
 ) as dag:
-    url = Variable.get('housing_url')
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
     key = 'raw_data/seoul_housing/'
+    base_url = 'http://openAPI.seoul.go.kr:8088'
 
-    records = transform(extract(url))
+
+
+    records = transform(extract(base_url))
 
     upload(records)
-
