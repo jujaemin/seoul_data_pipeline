@@ -17,12 +17,12 @@ jobs:
       # checkout을 이용해 코드에 접근
       - uses: actions/checkout@v3
       # s3-upload-action을 이용
-      - uses: zachelrath/upload-s3-action@v1.4.0
+      - uses: shallwefootball/s3-upload-action@v1.3.3
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_BUCKET }}
           destination_dir: ${{ secrets.AWS_DESTINATION_KEY }}
           source_dir: 'dags' # dags 폴더만 복사
-          acl: 'private'
+          args: --acl private
           
