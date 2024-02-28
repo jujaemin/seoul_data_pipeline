@@ -22,6 +22,7 @@ def extract(base_url):
     
     logging.info('Success : pop_extract')
 
+
     return [url, date]
 
 @task
@@ -36,7 +37,7 @@ def transform(response):
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
-        logging.info(f'Success : pop_transform')
+        logging.info('Success : pop_transform')
 
         return [life_people_data, date]
     
@@ -62,7 +63,7 @@ def load(record):
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
-        logging.info(f'Success : pop_load')
+        logging.info('Success : pop_load')
 
         return [path, file_name]
     
