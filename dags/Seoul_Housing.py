@@ -75,7 +75,7 @@ def upload(records):
         s3_key = key + str(file_name)
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, file_name, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
         FileManager.remove(path)
 
