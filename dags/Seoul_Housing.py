@@ -13,8 +13,8 @@ import logging
 
 
 @task
-def extract(req_params: dict):
-    verify=False
+def extract(base_url):
+
     result = []
 
     start_date = datetime.datetime(2024,1,1).date()
@@ -25,17 +25,11 @@ def extract(req_params: dict):
         date = current_date.strftime("%Y-%m-%d").replace('-','')
         api= Variable.get('api_key_seoul')
 
-        try:
         
-            url = f'http://openapi.seoul.go.kr:8088/{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
+        url = base_url+f'{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
 
-            result.append([url, str(current_date)])
-            current_date += timedelta(days=1)
-
-        except:
-            
-            current_date += timedelta(days=1)
-            pass
+        result.append([url, str(current_date)])
+        current_date += timedelta(days=1)
             
 
     logging.info('Success : housing_extract')
@@ -48,17 +42,21 @@ def transform(responses):
 
     for response in responses:
 
-        res = response[0]
-        date = response[1]
+        try:
+            res = response[0]
+            date = response[1]
         
-        res = requests.get(response[0])
-        data = res.json()
+            res = requests.get(response[0])
+            data = res.json()
 
-        df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
-        housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
-        result.append([housing_data, date])
+            df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
+            housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
+            result.append([housing_data, date])
+        
+        except:
+            pass
 
     logging.info('Success : housing_transform')
         
@@ -81,7 +79,9 @@ def upload(records):
         s3_key = key + str(file_name)
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, file_name, True)
+
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
+
 
         FileManager.remove(path)
 
@@ -104,6 +104,7 @@ with DAG(
     base_url = 'http://openAPI.seoul.go.kr:8088'
 
 
-    records = transform(extract(url))
+
+    records = transform(extract(base_url))
 
     upload(records)

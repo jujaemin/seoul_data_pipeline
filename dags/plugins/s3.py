@@ -12,3 +12,18 @@ class S3Helper(AirflowPlugin):
             key=key,
             replace=replace
         )
+    
+    def upload_string(s3_conn_id, string_data, key, bucket_name, replace=False, encrypt=False, acl_policy=None):
+        """
+        Upload string to S3
+        """
+        s3_hook = S3Hook(s3_conn_id)
+
+        s3_hook.load_string(
+            string_data=string_data,
+            key=key,
+            bucket_name=bucket_name,
+            replace=replace,
+            encrypt=encrypt,
+            acl_policy=acl_policy
+        )

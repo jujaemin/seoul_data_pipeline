@@ -15,28 +15,29 @@ import logging
 
 
 @task
-def extract(req_params: dict):
-    link = f'http://openapi.seoul.go.kr:8088/{api}/xml/SPOP_DAILYSUM_JACHI/1/1000/'
-    date = execution_date.date().strftime('%Y-%m-%d')
-    url = link + date.replace('-', '')
+def extract(base_url):
     
-    logging.info(f'Success : life_people_extract')
+    date = execution_date.date().strftime('%Y-%m-%d')
+    url = base_url+f'{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date
+    
+    logging.info('Success : pop_extract')
+
 
     return [url, date]
 
 @task
 def transform(response):
 
-    res = requests.get(response[0])
-    data = res.json()
-    date = response[1]
-    
     try:
+        res = requests.get(response[0])
+        data = res.json()
+        date = response[1]
+
         df = pd.DataFrame(data['SPOP_DAILYSUM_JACHI']['row'])
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
-        logging.info(f'Success : life_people_transform')
+        logging.info('Success : pop_transform')
 
         return [life_people_data, date]
     
@@ -62,7 +63,7 @@ def load(record):
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
-        logging.info(f'Success : life_people_load')
+        logging.info('Success : pop_load')
 
         return [path, file_name]
     
@@ -84,7 +85,7 @@ def upload(file):
 
         FileManager.remove(local_file)
 
-        logging.info(f'Success : life_people_upload ({file_name})')
+        logging.info(f'Success : pop_upload ({file_name})')
     
     except:
         logging.error('no data found')
@@ -109,6 +110,6 @@ with DAG(
     base_url = 'http://openAPI.seoul.go.kr:8088'
     api= Variable.get('api_key_seoul')
 
-    records = transform(extract(url))
+    records = transform(extract(base_url))
 
     upload(load(records))
