@@ -11,28 +11,26 @@ import datetime
 import os
 import logging
 
-req_params = {
-    "KEY": Variable.get('api_key_seoul'),
-    "TYPE": 'json',
-    "SERVICE": 'SPOP_DAILYSUM_JACHI',
-    "START_INDEX": 1,
-    "END_INDEX": 1000,
-    "MSRDT_DE": execution_date.replace('-', '')
-    }
+
+
 
 @task
 def extract(req_params: dict):
-    verify=False
-    result = RequestTool.api_request(base_url, verify, req_params)
-
+    link = f'http://openapi.seoul.go.kr:8088/{api}/xml/SPOP_DAILYSUM_JACHI/1/1000/'
+    date = execution_date.date().strftime('%Y-%m-%d')
+    url = link + date.replace('-', '')
+    
     logging.info(f'Success : life_people_extract')
 
-    return result
+    return [url, date]
 
 @task
 def transform(response):
 
-    data = response
+    res = requests.get(response[0])
+    data = res.json()
+    date = response[1]
+    
     try:
         df = pd.DataFrame(data['SPOP_DAILYSUM_JACHI']['row'])
 
@@ -40,7 +38,7 @@ def transform(response):
 
         logging.info(f'Success : life_people_transform')
 
-        return life_people_data
+        return [life_people_data, date]
     
     except:
 
@@ -52,9 +50,10 @@ def transform(response):
 def load(record):
 
     try:
-        data = record
+        data = record[0]
+        date = record[1]
 
-        file_name = f'{execution_date}.csv'
+        file_name = f'{date}.csv'
         file_path = f'temp/seoul_pop'
 
         path = file_path + '/' + file_name
@@ -108,6 +107,7 @@ with DAG(
     bucket_name = 'de-team5-s3-01'
     key = 'raw_data/seoul_pop/'
     base_url = 'http://openAPI.seoul.go.kr:8088'
+    api= Variable.get('api_key_seoul')
 
     records = transform(extract(url))
 
