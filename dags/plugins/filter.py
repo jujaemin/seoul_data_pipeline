@@ -3,7 +3,7 @@ from datetime import date, datetime
 import pandas as pd
 
 columns = {'air': ['날짜', '권역', '자치구', '미세먼지', '초미세먼지', '오존', '이산화질소농도', '일산화탄소농도', '아황산가스농도'],
-           'pop': ['날짜', '자치구', '생활인구수'], 'housing': ['계약일', '자치구', '가격', '면적', '층수', '건축년도', '건물용도'],
+           'pop': ['날짜', '자치구', '생활인구수'], 'housing': ['계약일', '자치구', '건물명', '가격', '면적', '층수', '건축년도', '건물용도'],
            'road': ['날짜', '생활권역구분코드', '권역', '첨두시구분', '평균속도', '요일코드', '요일그룹코드', '시간코드', '시간대설명'], 
            'welfare': ['시설명', '시설코드', '시설종류명', '시설종류상세명', '자치구구분', '시설장명', '시군구코드', '자치구', '시설주소',
                        '정원', '현인원', '전화번호', '우편번호'], 'noise': ['지역', '자치구', '행정동','소음평균', '날짜']}
@@ -14,7 +14,7 @@ en_to_ko = {'Jongno-gu': '종로구', 'Jung-gu': '중구', 'Yongsan-gu': '용산
             'Yeongdeungpo-gu': '영등포구', 'Dongjak-gu': '동작구', 'Gwanak-gu': '관악구', 'Seocho-gu': '서초구', 'Gangnam-gu': '강남구', 'Songpa-gu': '송파구',
             'Gangdong-gu': '강동구'}
 
-column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6], 'road': [0,1,2,3,4,5,6,7,8], 'welfare': [0,1,2,3,4,5,6,7,8,9,10,11,12], 'noise': [3,4,5,31,63]}
+column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6,7], 'road': [0,1,2,3,4,5,6,7,8], 'welfare': [0,1,2,3,4,5,6,7,8,9,10,11,12], 'noise': [3,4,5,31,63]}
 
 class air(BaseModel):
     날짜: date
@@ -83,6 +83,7 @@ class pop(BaseModel):
 class housing(BaseModel):
     계약일: date
     자치구: str
+    건물명: str
     가격: int
     면적: float
     층수: int
@@ -102,7 +103,7 @@ class housing(BaseModel):
             value = str(value)
         return date(int(value[:4]), int(value[4:6]), int(value[6:]))
     
-    @validator('자치구', '건물용도')
+    @validator('자치구', '건물명', '건물용도')
     def handle_string_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
