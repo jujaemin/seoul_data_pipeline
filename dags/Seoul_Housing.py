@@ -23,22 +23,13 @@ def extract(req_params: dict):
 
     while current_date <= end_date:
         date = current_date.strftime("%Y-%m-%d").replace('-','')
+        api= Variable.get('api_key_seoul')
 
-        req_params = {
-            "KEY": Variable.get('api_key_seoul'),
-            "TYPE": 'json',
-            "SERVICE": 'tbLnOpendataRtmsV',
-            "START_INDEX": 1,
-            "END_INDEX": 1000,
-            "EXTRA": ' / / / / / / / / ',
-            "MSRDT_DE": date
-            }
-        
         try:
         
-            data = RequestTool.api_request(base_url, verify, req_params)
+            url = f'http://openapi.seoul.go.kr:8088/{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
 
-            result.append([data, str(current_date)])
+            result.append([url, str(current_date)])
             current_date += timedelta(days=1)
 
         except:
@@ -57,12 +48,15 @@ def transform(responses):
 
     for response in responses:
 
-        data = response[0]
+        res = response[0]
         date = response[1]
+        
+        res = requests.get(response[0])
+        data = res.json()
 
         df = pd.DataFrame(data['tbLnOpendataRtmsV']['row'])
 
-        housing_data = df[['DEAL_YMD', 'SGG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
+        housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
         result.append([housing_data, date])
 
 
