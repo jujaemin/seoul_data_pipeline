@@ -15,10 +15,10 @@ import logging
 
 
 @task
-def extract(req_params: dict):
-    link = f'http://openapi.seoul.go.kr:8088/{api}/xml/SPOP_DAILYSUM_JACHI/1/1000/'
+def extract(base_url):
+    
     date = execution_date.date().strftime('%Y-%m-%d')
-    url = link + date.replace('-', '')
+    url = base_url+f'{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date
     
     logging.info(f'Success : life_people_extract')
 
@@ -27,11 +27,11 @@ def extract(req_params: dict):
 @task
 def transform(response):
 
-    res = requests.get(response[0])
-    data = res.json()
-    date = response[1]
-    
     try:
+        res = requests.get(response[0])
+        data = res.json()
+        date = response[1]
+
         df = pd.DataFrame(data['SPOP_DAILYSUM_JACHI']['row'])
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
@@ -109,6 +109,6 @@ with DAG(
     base_url = 'http://openAPI.seoul.go.kr:8088'
     api= Variable.get('api_key_seoul')
 
-    records = transform(extract(url))
+    records = transform(extract(base_url))
 
     upload(load(records))
