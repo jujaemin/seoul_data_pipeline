@@ -20,7 +20,7 @@ def extract(base_url):
     date = execution_date.date().strftime('%Y-%m-%d')
     url = base_url+f'{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date
     
-    logging.info(f'Success : life_people_extract')
+    logging.info('Success : pop_extract')
 
     return [url, date]
 
@@ -36,7 +36,7 @@ def transform(response):
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
-        logging.info(f'Success : life_people_transform')
+        logging.info(f'Success : pop_transform')
 
         return [life_people_data, date]
     
@@ -62,7 +62,7 @@ def load(record):
 
         data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
-        logging.info(f'Success : life_people_load')
+        logging.info(f'Success : pop_load')
 
         return [path, file_name]
     
@@ -84,7 +84,7 @@ def upload(file):
 
         FileManager.remove(local_file)
 
-        logging.info(f'Success : life_people_upload ({file_name})')
+        logging.info(f'Success : pop_upload ({file_name})')
     
     except:
         logging.error('no data found')
