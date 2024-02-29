@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator
 from datetime import date, datetime
 import pandas as pd
+import numpy as np
 
 columns = {'air': ['날짜', '권역', '자치구', '미세먼지', '초미세먼지', '오존', '이산화질소농도', '일산화탄소농도', '아황산가스농도'],
            'pop': ['날짜', '자치구', '생활인구수'], 'housing': ['계약일', '자치구', '건물명', '가격', '면적', '층수', '건축년도', '건물용도'],
