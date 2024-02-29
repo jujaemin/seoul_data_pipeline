@@ -4,6 +4,7 @@ from io import StringIO
 from plugins import filter
 
 import pandas as pd
+import numpy as np
 import boto3
 
 s3_client = boto3.client('s3', aws_access_key_id=Variable.get("aws_access_key_id"),
