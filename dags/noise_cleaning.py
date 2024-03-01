@@ -19,17 +19,15 @@ def cleaning(**context):
 
         result_data = Cleaning.filter(result_data, 'noise')
 
+        save_path = 'temp/seoul_noise/cleaning/'
+        file_name = f'{execution_date}.parquet'
+        path = save_path+file_name
 
-        file_path = 'temp/seoul_noise/'
-        file_name = '{}.csv'.format(execution_date)
+        FileManager.mkdir(save_path)
 
-        FileManager.mkdir(file_path)
-        
-        path = file_path+file_name
+        result_data.to_parquet(path, index=False)
 
         s3_key = 'cleaned_data/seoul_noise/' + file_name
-
-        result_data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
 
         S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
