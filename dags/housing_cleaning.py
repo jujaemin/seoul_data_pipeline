@@ -51,7 +51,6 @@ def cleaning():
 with DAG(
     dag_id = 'Housing_Cleaning',
     start_date = datetime.datetime(2024,1,1),
-    schedule = '@daily',
     max_active_runs = 1,
     catchup = False,
     default_args = {
@@ -63,3 +62,4 @@ with DAG(
     bucket_name = 'de-team5-s3-01'
 
     cleaning()
+
