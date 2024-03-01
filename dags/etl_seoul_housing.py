@@ -2,8 +2,9 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import FileManager, RequestTool
+from plugins.utils import FileManager
 from plugins.s3 import S3Helper
+from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
 import requests
 import pandas as pd
@@ -102,6 +103,14 @@ with DAG(
     bucket_name = 'de-team5-s3-01'
     key = 'raw_data/seoul_housing/'
     base_url = 'http://openAPI.seoul.go.kr:8088'
+
+    trigger_dag = TriggerDagRunOperator(
+        task_id = 'trigger_dag',
+        trigger_dag_id='Housing_Cleaning',
+        reset_dag_run=True,
+        trigger_rule='all_success',
+        dag=dag
+    )
 
 
 
