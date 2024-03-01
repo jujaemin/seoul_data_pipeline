@@ -49,7 +49,7 @@ def cleaning():
             pass
 
 with DAG(
-    dag_id = 'Housing_Cleaning109199392546',
+    dag_id = 'Housing_Cleaning',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
