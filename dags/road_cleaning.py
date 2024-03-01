@@ -19,28 +19,26 @@ def cleaning(**context):
 
         result_data = Cleaning.filter(result_data, 'road')
 
-        print(data)
+        save_path = 'temp/seoul_road/cleaning/'
+        file_name = f'{execution_date}.parquet'
+        path = save_path+file_name
 
-        file_path = 'temp/seoul_road/'
-        file_name = '{}.csv'.format(execution_date)
+        FileManager.mkdir(save_path)
 
-        FileManager.mkdir(file_path)
-        
-        path = file_path+file_name
+        result_data.to_parquet(path, index=False)
 
         s3_key = 'cleaned_data/seoul_road/' + file_name
-
-        result_data.to_csv(local, header = False, index = False, encoding='utf-8-sig')
 
         S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
         FileManager.remove(path)
+
     
     except:
         pass
 
 with DAG(
-    dag_id = 'Road_Cleaning',
+    dag_id = 'Road_Cleaning1',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
