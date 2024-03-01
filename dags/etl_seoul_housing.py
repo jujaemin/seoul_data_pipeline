@@ -26,7 +26,7 @@ def extract(base_url):
         api= Variable.get('api_key_seoul')
 
         
-        url = base_url+f'{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
+        url = base_url+f'/{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
 
         result.append([url, str(current_date)])
         current_date += timedelta(days=1)
