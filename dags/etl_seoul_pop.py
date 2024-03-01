@@ -18,7 +18,7 @@ import logging
 def extract(base_url):
     
     date = execution_date.date().strftime('%Y-%m-%d')
-    url = base_url+f'{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date
+    url = base_url+f'/{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date
     
     logging.info('Success : pop_extract')
 
