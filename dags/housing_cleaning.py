@@ -64,7 +64,7 @@ with DAG(
     
     sensor = ExternalTaskSensor(
         task_id='externaltasksensor',
-        external_dag_id='Seoul_Housing',
+        external_dag_id='seoul_housing',
         external_task_id='upload',
         timeout=5*60,
         mode='reschedule'
