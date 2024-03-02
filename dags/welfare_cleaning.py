@@ -33,7 +33,7 @@ def cleaning(**context):
 
         FileManager.remove(local)
     
-    except:
+    except Exception as e:
         pass
 
 with DAG(
