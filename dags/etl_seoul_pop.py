@@ -93,7 +93,7 @@ def upload(file):
 
 
 with DAG(
-    dag_id = 'seoul_population',
+    dag_id = 'etl_seoul_population',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
