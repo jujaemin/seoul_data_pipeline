@@ -153,8 +153,7 @@ class housing(BaseModel):
     
     @validator('건축년도')
     def handle_year_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['건축년도'].mean() if pd.isna(value) else value
+        return '0' if pd.isna(value) else value
 
 
 class road(BaseModel):
