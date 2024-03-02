@@ -8,44 +8,55 @@ from plugins.s3 import S3Helper
 from airflow.sensors.external_task import ExternalTaskSensor
 
 import datetime
+import logging
+
 
 
 @task
-def cleaning(**context):
-    try:
-        execution_date = context['execution_date'].date()
-        data = Cleaning.read_csv_to_df('housing', execution_date, filter.column_indexes['housing'])
-        data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'housing'), '자치구' if '자치구' in filter.columns['housing'] else '권역')
-        result_data = Cleaning.unify_null(data)
+def cleaning():
+    dates = []
+    start_date = datetime.datetime(2024,1,1).date()
+    end_date = datetime.datetime.today().date()
+    current_date = start_date
 
-        result_data = Cleaning.filter(result_data, 'housing')
+    while current_date <= end_date:
+        dates.append(current_date)
+        current_date += timedelta(days=1)
 
-        print(data)
+    for date in dates:
+        try:
+            execution_date = date
+            data = Cleaning.read_csv_to_df('housing', execution_date, filter.column_indexes['housing'])
+            data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'housing'), '자치구' if '자치구' in filter.columns['housing'] else '권역')
+            result_data = Cleaning.unify_null(data)
 
-        file_path = 'temp/seoul_housing/'
-        file_name = '{}.csv'.format(execution_date)
+            result_data = Cleaning.filter(result_data, 'housing')
+            result_data['건물명'] = result_data.apply(lambda row: 'NULL' if row['건물용도'] == '단독다가구' else row['건물명'], axis=1)
 
-        FileManager.mkdir(file_path)
-        
-        path = file_path+file_name
 
-        s3_key = 'cleaned_data/seoul_housing/' + file_name
+            save_path = 'temp/seoul_air/housing/'
+            file_name = f'{execution_date}.parquet'
+            path = save_path+file_name
 
-        result_data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
+            FileManager.mkdir(save_path)
 
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
+            result_data.to_parquet(path, index=False)
 
-        FileManager.remove(path)
+            s3_key = 'cleaned_data/seoul_housing/' + file_name
+
+            S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
+
+            FileManager.remove(path)
     
-    except:
-        pass
+        except Exception as e:
+            logging.info(e)
+            pass
 
 with DAG(
     dag_id = 'Housing_Cleaning',
     start_date = datetime.datetime(2024,1,1),
-    schedule = '@daily',
     max_active_runs = 1,
-    catchup = True,
+    catchup = False,
     default_args = {
         'retries': 1,
         'retry_delay': timedelta(minutes=1),
@@ -53,5 +64,19 @@ with DAG(
 ) as dag:
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
+    
+    sensor = ExternalTaskSensor(
+        task_id='externaltasksensor',
+        external_dag_id='etl_seoul_housing',
+        external_task_id='upload',
+        timeout=5*60,
+        mode='reschedule'
+)
 
-    cleaning()
+    cleaning_task = cleaning()
+
+    sensor >> cleaning_task
+
+
+
+

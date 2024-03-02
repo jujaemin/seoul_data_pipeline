@@ -21,8 +21,12 @@ class Cleaning(AirflowPlugin):
 
     
     def rename_cols(df: pd.DataFrame, subject: str):
+        if subject == 'air' or subject == 'noise' or subject == 'welfare':
+            df.drop(index=0, axis=0, inplace=True)
+
         column_names = filter.columns[subject]
         df.columns = column_names
+
 
         return df
     

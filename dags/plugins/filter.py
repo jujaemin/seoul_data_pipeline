@@ -1,7 +1,8 @@
 from pydantic import BaseModel, validator
 from datetime import date, datetime
+from typing import Union
 import pandas as pd
-import numpy as np
+
 
 columns = {'air': ['날짜', '권역', '자치구', '미세먼지', '초미세먼지', '오존', '이산화질소농도', '일산화탄소농도', '아황산가스농도'],
            'pop': ['날짜', '자치구', '생활인구수'], 'housing': ['계약일', '자치구', '건물명', '가격', '면적', '층수', '건축년도', '건물용도'],
@@ -13,9 +14,9 @@ en_to_ko = {'Jongno-gu': '종로구', 'Jung-gu': '중구', 'Yongsan-gu': '용산
             'Jungnang-gu': '중랑구', 'Seongbuk-gu': '성북구', 'Gangbuk-gu': '강북구', 'Dobong-gu': '도봉구', 'Nowon-gu': '노원구', 'Eunpyeong-gu': '은평구',
             'Seodaemun-gu': '서대문구', 'Mapo-gu': '마포구', 'Yangcheon-gu': '양천구', 'Gangseo-gu': '강서구', 'Guro-gu': '구로구', 'Geumcheon-gu': '금천구',
             'Yeongdeungpo-gu': '영등포구', 'Dongjak-gu': '동작구', 'Gwanak-gu': '관악구', 'Seocho-gu': '서초구', 'Gangnam-gu': '강남구', 'Songpa-gu': '송파구',
-            'Gangdong-gu': '강동구'}
+            'Gangdong-gu': '강동구', 'Seoul_Grand_Park': '서울대공원'}
 
-column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6,7], 'road': [0,1,2,3,4,5,6,7,8], 'welfare': [0,1,2,3,4,5,6,7,8,9,10,11,12], 'noise': [3,4,5,31,63]}
+column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6,7], 'road': [0,1,2,3,4,5,6,7,8], 'welfare': [0,1,2,3,4,5,6,7,8,9,10,11,12], 'noise': [4,5,6,32,64]}
 
 class air(BaseModel):
     날짜: date
@@ -46,10 +47,36 @@ class air(BaseModel):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
 
-    @validator('미세먼지', '초미세먼지', '오존', '이산화질소농도', '일산화탄소농도', '아황산가스농도')
-    def handle_numeric_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    @validator('미세먼지')
+    def handle_pm10_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['미세먼지'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('초미세먼지')
+    def handle_pm25_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['초미세먼지'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('오존')
+    def handle_o3_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['오존'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('이산화질소농도')
+    def handle_no2_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['이산화질소농도'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('일산화탄소농도')
+    def handle_co_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['인산화탄소농도'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('아황산가스농도')
+    def handle_so2_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['아황산가스농도'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+
 
 
 class pop(BaseModel):
@@ -76,9 +103,9 @@ class pop(BaseModel):
         return 'NULL' if pd.isna(value) else value
 
     @validator('생활인구수')
-    def handle_numeric_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    def handle_pop_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['생활인구수'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
 
 
 class housing(BaseModel):
@@ -109,10 +136,25 @@ class housing(BaseModel):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
 
-    @validator('가격', '면적', '층수', '건축년도')
-    def handle_numeric_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) else value
+    @validator('가격')
+    def handle_price_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['가격'].mean() if pd.isna(value) else value
+    
+    @validator('면적')
+    def handle_area_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['면적'].mean() if pd.isna(value) else value
+    
+    @validator('층수')
+    def handle_height_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['층수'].mean() if pd.isna(value) else value
+    
+    @validator('건축년도')
+    def handle_year_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['건축년도'].mean() if pd.isna(value) else value
 
 
 class road(BaseModel):
@@ -144,10 +186,30 @@ class road(BaseModel):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
 
-    @validator('생활권역구분코드', '평균속도', '요일코드', '요일그룹코드', '시간코드')
-    def handle_numeric_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    @validator('생활권역구분코드')
+    def handle_lac_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['생환권역구분코드'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('평균속도')
+    def handle_speed_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['평균속도'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('요일코드')
+    def handle_wkd_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['요일코드'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('요일그룹코드')
+    def handle_wkdg_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['요일그룹코드'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('시간코드')
+    def handle_tc_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['시간코드'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
     
 
 class welfare(BaseModel):
@@ -160,30 +222,40 @@ class welfare(BaseModel):
     시군구코드: Union[int, None]
     자치구: str
     시설주소: Union[str, None]
-    정원: Union[int, None]
-    현인원: Union[int, None]
+    정원: Union[float, None]
+    현인원: Union[float, None]
     전화번호: Union[str, None]
-    우편번호: Union[int, None]
+    우편번호: Union[str, None]
 
     @classmethod
     #데이터프레임 행마다
     def from_dataframe_row(cls, row):
         return cls(**row)
         
-    @validator('시설명','시설코드','시설종류명','시설종류상세명','자치구구분','시설장명','자치구','시설주소','전화번호')
+    @validator('시설명','시설코드','시설종류명','시설종류상세명','자치구구분','시설장명','자치구','시설주소','전화번호', '우편번호')
     def handle_string_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
 
-    @validator('시군구코드','정원','현인원','우편번호')
-    def handle_numeric_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    @validator('시군구코드')
+    def handle_sggc_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['시군구코드'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('정원')
+    def handle_full_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['정원'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('현인원')
+    def handle_now_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        return values['현인원'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
 
 
 class noise(BaseModel):
-    지역: str
-    자치구: Union[str, None]
+    지역: Union[str, None]
+    자치구: str
     행정동: Union[str, None]
     소음평균: Union[float, None]
     날짜: datetime
@@ -204,13 +276,14 @@ class noise(BaseModel):
     @validator('자치구')
     def translate(cls, value):
         return en_to_ko[value]
+    
+    @validator('소음평균')
+    def handle_noise_columns(cls, value, values):
+        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        noise_values = values.get('소음평균', None)
+        return noise_values.mean() if noise_values is not None and not noise_values.isnull().all() else value
         
     @validator('지역', '자치구', '행정동')
     def handle_string_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
-
-    @validator('소음평균')
-    def handle_numeric_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value

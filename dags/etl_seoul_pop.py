@@ -2,23 +2,22 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import FileManager, RequestTool
+from plugins.utils import FileManager
 from plugins.s3 import S3Helper
 
 import requests
 import pandas as pd
 import datetime
-import os
 import logging
 
 
 
 
 @task
-def extract(base_url):
+def extract(base_url, **context):
     
-    date = execution_date.date().strftime('%Y-%m-%d')
-    url = base_url+f'{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date
+    date = context["execution_date"].date().strftime('%Y-%m-%d')
+    url = base_url+f'/{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date.replace('-', '')
     
     logging.info('Success : pop_extract')
 
@@ -41,9 +40,10 @@ def transform(response):
 
         return [life_people_data, date]
     
-    except:
+    except Exception as e:
 
-        logging.error('no data found')
+        logging.info('no data found')
+        logging.info(e)
 
         return None
 
@@ -55,7 +55,7 @@ def load(record):
         date = record[1]
 
         file_name = f'{date}.csv'
-        file_path = f'temp/seoul_pop'
+        file_path = 'temp/seoul_pop'
 
         path = file_path + '/' + file_name
         
@@ -87,13 +87,14 @@ def upload(file):
 
         logging.info(f'Success : pop_upload ({file_name})')
     
-    except:
-        logging.error('no data found')
+    except Exception as e:
+        logging.info('no data found')
+        logging.info(e)
         pass
 
 
 with DAG(
-    dag_id = 'Seoul_Population',
+    dag_id = 'etl_seoul_population',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,

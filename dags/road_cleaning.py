@@ -5,8 +5,10 @@ from airflow.decorators import task
 from plugins import filter
 from plugins.utils import FileManager
 from plugins.s3 import S3Helper
+from airflow.sensors.external_task import ExternalTaskSensor
 
 import datetime
+import logging
 
 
 @task
@@ -19,24 +21,23 @@ def cleaning(**context):
 
         result_data = Cleaning.filter(result_data, 'road')
 
-        print(data)
+        save_path = 'temp/seoul_road/cleaning/'
+        file_name = f'{execution_date}.parquet'
+        path = save_path+file_name
 
-        file_path = 'temp/seoul_road/'
-        file_name = '{}.csv'.format(execution_date)
+        FileManager.mkdir(save_path)
 
-        FileManager.mkdir(file_path)
-        
-        path = file_path+file_name
+        result_data.to_parquet(path, index=False)
 
         s3_key = 'cleaned_data/seoul_road/' + file_name
-
-        result_data.to_csv(local, header = False, index = False, encoding='utf-8-sig')
 
         S3Helper.upload(aws_conn_id, bucket_name, s3_key, path, True)
 
         FileManager.remove(path)
+
     
-    except:
+    except Exception as e:
+        logging.info(e)
         pass
 
 with DAG(
@@ -53,4 +54,14 @@ with DAG(
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
 
-    cleaning()
+    sensor = ExternalTaskSensor(
+        task_id='externaltasksensor',
+        external_dag_id='te_seoul_road',
+        external_task_id='load',
+        timeout=5*60,
+        mode='reschedule'
+)
+
+    cleaning_task = cleaning()
+
+    sensor >> cleaning_task

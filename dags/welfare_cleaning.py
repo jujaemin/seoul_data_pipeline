@@ -5,8 +5,10 @@ from airflow.decorators import task
 from plugins import filter
 from plugins.utils import FileManager
 from plugins.s3 import S3Helper
+from airflow.sensors.external_task import ExternalTaskSensor
 
 import datetime
+import logging
 
 
 @task
@@ -32,13 +34,14 @@ def cleaning(**context):
 
         FileManager.remove(local)
     
-    except:
+    except Exception as e:
+        logging.info(e)
         pass
 
 with DAG(
     dag_id = 'Welfare_Cleaning',
     start_date = datetime.datetime(2024,1,1),
-    schedule = '@daily',
+    schedule = '@monthly',
     max_active_runs = 1,
     catchup = True,
     default_args = {
@@ -49,4 +52,14 @@ with DAG(
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
 
-    cleaning()
+    sensor = ExternalTaskSensor(
+        task_id='externaltasksensor',
+        external_dag_id='etl_seoul_welfare',
+        external_task_id='load',
+        timeout=5*60,
+        mode='reschedule'
+)
+
+    cleaning_task = cleaning()
+
+    sensor >> cleaning_task

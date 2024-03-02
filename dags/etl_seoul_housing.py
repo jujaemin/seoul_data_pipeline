@@ -2,13 +2,12 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import FileManager, RequestTool
+from plugins.utils import FileManager
 from plugins.s3 import S3Helper
 
 import requests
 import pandas as pd
 import datetime
-import os
 import logging
 
 
@@ -26,7 +25,7 @@ def extract(base_url):
         api= Variable.get('api_key_seoul')
 
         
-        url = base_url+f'{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
+        url = base_url+f'/{api}/json/tbLnOpendataRtmsV/1/1000/ / / / / / / / / /'+date
 
         result.append([url, str(current_date)])
         current_date += timedelta(days=1)
@@ -55,7 +54,8 @@ def transform(responses):
             housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
             result.append([housing_data, date])
         
-        except:
+        except Exception as e:
+            logging.info(e)
             pass
 
     logging.info('Success : housing_transform')
@@ -88,7 +88,7 @@ def upload(records):
         logging.info('Success : housing_load')
 
 with DAG(
-    dag_id = 'Seoul_housing',
+    dag_id = 'etl_seoul_housing',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
