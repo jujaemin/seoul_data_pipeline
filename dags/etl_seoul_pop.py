@@ -43,6 +43,7 @@ def transform(response):
     except Exception as e:
 
         logging.info('no data found')
+        logging.info(e)
 
         return None
 
