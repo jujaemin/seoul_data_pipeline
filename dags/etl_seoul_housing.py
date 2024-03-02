@@ -8,7 +8,6 @@ from plugins.s3 import S3Helper
 import requests
 import pandas as pd
 import datetime
-import os
 import logging
 
 
@@ -55,7 +54,7 @@ def transform(responses):
             housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
             result.append([housing_data, date])
         
-        except:
+        except Exception as e:
             pass
 
     logging.info('Success : housing_transform')
