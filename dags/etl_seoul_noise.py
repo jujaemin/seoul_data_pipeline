@@ -11,7 +11,6 @@ from datetime import timedelta
 
 from typing import List
 
-import requests
 import csv
 import io
 import logging
