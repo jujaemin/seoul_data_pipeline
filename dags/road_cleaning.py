@@ -36,6 +36,7 @@ def cleaning(**context):
 
     
     except Exception as e:
+        logging.info(e)
         pass
 
 with DAG(
