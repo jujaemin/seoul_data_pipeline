@@ -34,6 +34,7 @@ def cleaning(**context):
         FileManager.remove(local)
     
     except Exception as e:
+        logging.info(e)
         pass
 
 with DAG(
