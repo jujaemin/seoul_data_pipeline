@@ -35,6 +35,7 @@ def cleaning(**context):
         FileManager.remove(path)
 
     except Exception as e:
+        logging.info(e)
         pass
 
 
