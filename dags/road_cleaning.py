@@ -35,7 +35,7 @@ def cleaning(**context):
         FileManager.remove(path)
 
     
-    except:
+    except Exception as e:
         pass
 
 with DAG(
