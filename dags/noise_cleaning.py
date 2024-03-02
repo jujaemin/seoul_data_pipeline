@@ -5,6 +5,7 @@ from airflow.decorators import task
 from plugins import filter
 from plugins.utils import FileManager
 from plugins.s3 import S3Helper
+from airflow.sensors.external_task import ExternalTaskSensor
 
 import datetime
 
@@ -50,4 +51,14 @@ with DAG(
     aws_conn_id='aws_default'
     bucket_name = 'de-team5-s3-01'
 
-    cleaning()
+    sensor = ExternalTaskSensor(
+        task_id='externaltasksensor',
+        external_dag_id='seoul_noise',
+        external_task_id='load',
+        timeout=5*60,
+        mode='reschedule'
+)
+
+    cleaning_task = cleaning()
+
+    sensor >> cleaning_task
