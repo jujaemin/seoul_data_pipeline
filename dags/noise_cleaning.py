@@ -9,6 +9,8 @@ from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.timetables.trigger import CronTriggerTimetable
 
 import datetime
+import logging
+
 
 
 @task
