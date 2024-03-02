@@ -89,6 +89,7 @@ def upload(file):
     
     except Exception as e:
         logging.info('no data found')
+        logging.info(e)
         pass
 
 
