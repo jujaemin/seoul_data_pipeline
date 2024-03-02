@@ -14,10 +14,10 @@ import logging
 
 
 @task
-def extract(base_url):
+def extract(base_url, **context):
     
-    date = execution_date.date().strftime('%Y-%m-%d')
-    url = base_url+f'/{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date
+    date = context["execution_date"].date().strftime('%Y-%m-%d')
+    url = base_url+f'/{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date.replace('-', '')
     
     logging.info('Success : pop_extract')
 
@@ -40,9 +40,9 @@ def transform(response):
 
         return [life_people_data, date]
     
-    except:
+    except Exception as e:
 
-        logging.error('no data found')
+        logging.info('no data found')
 
         return None
 
@@ -54,7 +54,7 @@ def load(record):
         date = record[1]
 
         file_name = f'{date}.csv'
-        file_path = f'temp/seoul_pop'
+        file_path = 'temp/seoul_pop'
 
         path = file_path + '/' + file_name
         
@@ -86,8 +86,8 @@ def upload(file):
 
         logging.info(f'Success : pop_upload ({file_name})')
     
-    except:
-        logging.error('no data found')
+    except Exception as e:
+        logging.info('no data found')
         pass
 
 
