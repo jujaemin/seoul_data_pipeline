@@ -55,6 +55,7 @@ def transform(responses):
             result.append([housing_data, date])
         
         except Exception as e:
+            logging.info(e)
             pass
 
     logging.info('Success : housing_transform')
