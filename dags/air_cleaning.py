@@ -8,6 +8,7 @@ from plugins.s3 import S3Helper
 from airflow.sensors.external_task import ExternalTaskSensor
 
 import datetime
+import logging
 
 @task
 def cleaning(**context):
