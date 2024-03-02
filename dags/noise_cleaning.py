@@ -6,6 +6,7 @@ from plugins import filter
 from plugins.utils import FileManager
 from plugins.s3 import S3Helper
 from airflow.sensors.external_task import ExternalTaskSensor
+from airflow.timetables.trigger import CronTriggerTimetable
 
 import datetime
 
@@ -40,7 +41,7 @@ def cleaning(**context):
 with DAG(
     dag_id = 'Noise_Cleaning',
     start_date = datetime.datetime(2024,1,1),
-    schedule = '@daily',
+    schedule = CronTriggerTimetable("0 5 * * *", timezone="UTC"),
     max_active_runs = 1,
     catchup = True,
     default_args = {
