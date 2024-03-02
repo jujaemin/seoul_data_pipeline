@@ -47,6 +47,7 @@ def cleaning():
             FileManager.remove(path)
     
         except Exception as e:
+            logging.info(e)
             pass
 
 with DAG(
