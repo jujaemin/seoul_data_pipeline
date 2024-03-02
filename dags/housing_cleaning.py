@@ -46,7 +46,7 @@ def cleaning():
 
             FileManager.remove(path)
     
-        except:
+        except Exception as e:
             pass
 
 with DAG(
