@@ -60,7 +60,9 @@ with DAG(
         external_dag_id='etl_seoul_noise',
         external_task_id='load',
         timeout=5*60,
-        mode='reschedule'
+        mode='reschedule',
+        allowed_states=['success'],
+        dag=dag
 )
 
     cleaning_task = cleaning()
