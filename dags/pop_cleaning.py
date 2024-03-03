@@ -58,7 +58,9 @@ with DAG(
         external_dag_id='etl_seoul_populaiton',
         external_task_id='upload',
         timeout=5*60,
-        mode='reschedule'
+        mode='reschedule',
+        allowed_states=['success'],
+        dag=dag
 )
 
     cleaning_task = cleaning()
