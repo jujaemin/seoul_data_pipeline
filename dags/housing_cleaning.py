@@ -69,7 +69,7 @@ with DAG(
         external_dag_id='etl_seoul_housing',
         external_task_id='upload',
         timeout=5*60,
-        mode='reschedule'
+        mode='reschedule',
         allowed_states=['success'],
         dag=dag
 )
