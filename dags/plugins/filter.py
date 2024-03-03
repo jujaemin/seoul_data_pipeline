@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator
 from datetime import date, datetime
 from typing import Union
+
 import pandas as pd
 
 
@@ -42,7 +43,7 @@ class air(BaseModel):
 
         return date(int(value[:4]), int(value[4:6]), int(value[6:]))
         
-    @validator('권역','자치구')
+    @validator('권역')
     def handle_string_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if pd.isna(value) else value
@@ -98,9 +99,9 @@ class pop(BaseModel):
         return date(int(value[:4]), int(value[4:6]), int(value[6:]))
         
     @validator('자치구')
-    def handle_string_column(cls, value):
+    def handle_sgg_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
-        return 'NULL' if pd.isna(value) else value
+        return 'NULL' if value == 'nan' else value
 
     @validator('생활인구수')
     def handle_pop_columns(cls, value, values):
@@ -115,13 +116,12 @@ class housing(BaseModel):
     가격: Union[int, None]
     면적: Union[float, None]
     층수: Union[int, None]
-    건축년도: Union[int, None]
+    건축년도: Union[float, None]
     건물용도: Union[str, None]
 
     @classmethod
     def from_dataframe_row(cls, row):
-        # 건축년도 결측치 중 null이라는 문자열로 처리 된 것들도 있고 비워져 있는 것도 있어서 에러가 나는 듯 한데 아래 코드 추가하니까 괜찮아졌습니다.
-        row['건축년도'] = row['건축년도'] if pd.notna(row['건축년도']) else 0
+        #row['건축년도'] = row['건축년도'] if pd.notna(row['건축년도']) else 0
         return cls(**row)
     
     @validator('계약일', pre=True, always=True)
@@ -131,10 +131,21 @@ class housing(BaseModel):
             value = str(value)
         return date(int(value[:4]), int(value[4:6]), int(value[6:]))
     
-    @validator('자치구', '건물명', '건물용도')
-    def handle_string_column(cls, value):
+    @validator('자치구')
+    def handle_sgg_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
-        return 'NULL' if pd.isna(value) else value
+        return 'NULL' if value == 'nan' else value
+
+    
+    @validator('건물명')
+    def handle_bdnm_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('건물용도')
+    def handle_bduse_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
 
     @validator('가격')
     def handle_price_columns(cls, value, values):
@@ -152,8 +163,8 @@ class housing(BaseModel):
         return values['층수'].mean() if pd.isna(value) else value
     
     @validator('건축년도')
-    def handle_year_columns(cls, value, values):
-        return '0' if pd.isna(value) else value
+    def handle_year_columns(cls, value):
+        return 0 if pd.isna(value) else value
 
 
 class road(BaseModel):
@@ -179,11 +190,22 @@ class road(BaseModel):
             value = str(value)
 
         return date(int(value[:4]), int(value[4:6]), int(value[6:]))
-        
-    @validator('권역', '첨두시구분', '시간대설명')
-    def handle_string_column(cls, value):
+    
+    @validator('권역')
+    def handle_sgga_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
-        return 'NULL' if pd.isna(value) else value
+        return 'NULL' if value == 'nan' else value
+
+        
+    @validator('첨두시구분')
+    def handle_ts_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('시간대설명')
+    def handle_ex_ts_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
 
     @validator('생활권역구분코드')
     def handle_lac_columns(cls, value, values):
@@ -231,15 +253,61 @@ class welfare(BaseModel):
     def from_dataframe_row(cls, row):
         return cls(**row)
         
-    @validator('시설명','시설코드','시설종류명','시설종류상세명','자치구구분','시설장명','자치구','시설주소','전화번호', '우편번호')
-    def handle_string_column(cls, value):
+    @validator('시설명')
+    def handle_fanm_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
-        return 'NULL' if pd.isna(value) else value
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('시설코드')
+    def handle_facd_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('시설종류명')
+    def handle_fcct_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('시설종류상세명')
+    def handle_fcct_detail_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('자치구구분')
+    def handle_sggp_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('시설장명')
+    def handle_manm_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('시설주소')
+    def handle_faad_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('전화번호')
+    def handle_pn_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('우편번호')
+    def handle_mn_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
 
     @validator('시군구코드')
     def handle_sggc_columns(cls, value, values):
         # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
         return values['시군구코드'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+    
+    @validator('자치구')
+    def handle_sgg_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+
     
     @validator('정원')
     def handle_full_columns(cls, value, values):
@@ -282,7 +350,19 @@ class noise(BaseModel):
         noise_values = values.get('소음평균', None)
         return noise_values.mean() if noise_values is not None and not noise_values.isnull().all() else value
         
-    @validator('지역', '자치구', '행정동')
-    def handle_string_column(cls, value):
+    @validator('지역')
+    def handle_area_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
-        return 'NULL' if pd.isna(value) else value
+        return 'NULL' if value == 'nan' else value
+    
+    @validator('자치구')
+    def handle_sgg_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+
+    
+    @validator('행정동')
+    def handle_hjd_column(cls, value):
+        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        return 'NULL' if value == 'nan' else value
+
