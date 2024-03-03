@@ -46,7 +46,7 @@ class air(BaseModel):
     @validator('권역')
     def handle_string_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
-        return 'NULL' if pd.isna(value) else value
+        return 'NULL' if value == 'nan' else value
 
     @validator('미세먼지')
     def handle_pm10_columns(cls, value, values):
@@ -121,7 +121,6 @@ class housing(BaseModel):
 
     @classmethod
     def from_dataframe_row(cls, row):
-        #row['건축년도'] = row['건축년도'] if pd.notna(row['건축년도']) else 0
         return cls(**row)
     
     @validator('계약일', pre=True, always=True)
