@@ -31,7 +31,6 @@ def cleaning():
             result_data = Cleaning.unify_null(data)
 
             result_data = Cleaning.filter(result_data, 'housing')
-            result_data['건물명'] = result_data.apply(lambda row: 'NULL' if row['건물용도'] == '단독다가구' else row['건물명'], axis=1)
 
 
             save_path = 'temp/seoul_air/housing/'
@@ -71,6 +70,8 @@ with DAG(
         external_task_id='upload',
         timeout=5*60,
         mode='reschedule'
+        allowed_states=['success'],
+        dag=dag
 )
 
     cleaning_task = cleaning()
