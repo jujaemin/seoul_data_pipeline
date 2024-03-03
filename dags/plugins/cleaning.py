@@ -36,12 +36,8 @@ class Cleaning(AirflowPlugin):
         return df
     
     def unify_null(df: pd.DataFrame):
-        df.replace('null', None, inplace=True)
-        df.replace(np.nan, None, inplace=True)
-        df.replace('na', None, inplace=True)
-        df.replace('N/A', None, inplace=True)
-        df.replace('NA', None, inplace=True)
-        df.replace('-', None, inplace=True)
+        df.fillna(value=np.nan, inplace=True)
+        df.replace('-', value=np.nan, inplace=True)
 
         return df
     
