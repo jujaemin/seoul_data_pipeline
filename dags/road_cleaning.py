@@ -16,7 +16,7 @@ def cleaning(**context):
     try:
         execution_date = context['execution_date'].date()
         data = Cleaning.read_csv_to_df('road', execution_date, filter.column_indexes['road'])
-        data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'road'), '자치구' if '자치구' in filter.columns['road'] else '권역')
+        data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'road'), 'division_name')
         result_data = Cleaning.unify_null(data)
 
         result_data = Cleaning.filter(result_data, 'road')
