@@ -16,7 +16,7 @@ def cleaning(**context):
     try:
         execution_date = context['execution_date'].date() - timedelta(days=4)
         data = Cleaning.read_csv_to_df('pop', execution_date, filter.column_indexes['pop'])
-        data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'pop'), '자치구' if '자치구' in filter.columns['pop'] else '권역')
+        data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'pop'), 'gu')
         result_data = Cleaning.unify_null(data)
 
         result_data = Cleaning.filter(result_data, 'pop')
