@@ -1,5 +1,6 @@
 from airflow.models.dag import DAG
 from airflow.models import Variable
+from airflow.operators.dummy import DummyOperator
 from airflow.providers.amazon.aws.operators.athena import AthenaOperator
 from utils import FileManager
 from datetime import datetime
