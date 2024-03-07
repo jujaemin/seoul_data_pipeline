@@ -91,14 +91,25 @@ with DAG(
         },
     )
 
-    create_table_congestion = AthenaOperator(
-        task_id='create_table_congestion',
-        query='sqls/create_congestion.sql',
+    create_table_park_ratio = AthenaOperator(
+        task_id='create_table_park_ratio',
+        query='sqls/tmpl_ctas_park.sql',
         params={
-            'output_table_name': 'congestion_by_area',
-            'source_database': ATHENA_DATABASE_RAW_DATA
-        }
+            'output_table_name': 'park_ratio',
+            'source_database': ATHENA_DATABASE_RAW_DATA,
+            'source_table': 'seoul_park',
+            'extra': '' 
+        },
     )
+
+    # create_table_congestion = AthenaOperator(
+    #     task_id='create_table_congestion',
+    #     query='sqls/create_congestion.sql',
+    #     params={
+    #         'output_table_name': 'congestion_by_area',
+    #         'source_database': ATHENA_DATABASE_RAW_DATA
+    #     }
+    # )
 
     create_table_welfare = AthenaOperator(
         task_id='create_table_welfare_2022',
@@ -113,14 +124,10 @@ with DAG(
     )
 
     start_task >> [
-        create_table_congestion,
         [
             create_table_medical_num,
             create_table_medical_bed,
             create_table_sports_num,
-            create_table_sports_area,
-
-        ] >> [
-            create_table_welfare,
-        ]
+            create_table_sports_area
+        ] >> create_table_welfare
     ] >> end_task
