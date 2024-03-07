@@ -15,7 +15,7 @@ default_args = {
     'execution_date': '{{ds}}'
 }
 
-api_key = Variable.get('api_key_seoul')
+api_key = Variable.get('api_key_road')
 bucket_name = Variable.get('bucket_name')
 s3_key_path = 'raw_data/seoul_road/'
 base_url = 'https://t-data.seoul.go.kr/apig/apiman-gateway/tapi/TopisIccStTimesRoadDivTrfLivingStats/1.0'
