@@ -81,7 +81,7 @@ def upload(file):
 
         s3_key = key + str(file_name)
 
-        S3Helper.upload(aws_conn_id, bucket_name, s3_key, file_name, True)
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, local_file, True)
 
         FileManager.remove(local_file)
 
