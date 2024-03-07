@@ -1,4 +1,3 @@
-from airflow.decorators import task
 from airflow.models import Variable
 from airflow.providers.amazon.aws.operators.athena import AthenaOperator
 
@@ -21,7 +20,7 @@ class AthenaTool():
     def ctas_num_area(output_database:str, table_name:str, category:str):
         return AthenaOperator(
             task_id=f'create_table_{table_name}',
-            query=f'tmpl_num_area.sql',
+            query='tmpl_num_area.sql',
             params={
                 'output_table': table_name,
                 'output_database': output_database,
