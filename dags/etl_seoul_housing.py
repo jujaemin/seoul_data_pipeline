@@ -16,14 +16,6 @@ default_args = {
         'execution_date': '{{ds}}'
     }
 
-req_params = {
-    "KEY": Variable.get('api_key_seoul'),
-    "TYPE": 'json',
-    "SERVICE": 'tbLnOpendataRtmsV',
-    "START_INDEX": 1,
-    "END_INDEX": 1000,
-    "MSRDT_DE": '{{ ds_nodash }}'
-}
 
 bucket_name = Variable.get('bucket_name')
 s3_key_path = 'raw_data/seoul_housing/'
@@ -40,15 +32,22 @@ def extract(req_params: dict):
     current_date = start_date
 
     while current_date <= end_date:
-        date = current_date.strftime("%Y-%m-%d").replace('-','')
-        try:
-            json_result = RequestTool.api_request(base_url, verify, req_params)
-        
-            result.append(json_result)
-            current_date += timedelta(days=1)
-        except Exception as e:
-                logging.error(f'Error occurred during loading to S3: {str(e)}')
-                current_date += timedelta(days=1)
+            date = current_date.strftime("%Y-%m-%d").replace('-','')
+            req_params = {
+                    "KEY": Variable.get('api_key_seoul'),
+                    "TYPE": 'json',
+                    "SERVICE": 'tbLnOpendataRtmsV',
+                    "START_INDEX": 1,
+                    "END_INDEX": 1000,
+                    "MSRDT_DE": date
+            }
+            try:
+                    json_result = RequestTool.api_request(base_url, verify, req_params)
+                    result.append(json_result)
+                    current_date += timedelta(days=1)
+            except Exception as e:
+                    logging.error(f'Error occurred during loading to S3: {str(e)}')
+                    current_date += timedelta(days=1)
 
     logging.info('Success : housing_extract')
 
