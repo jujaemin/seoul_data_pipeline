@@ -52,7 +52,7 @@ def cleaning():
             pass
 
 with DAG(
-    dag_id = 'housing_cleaning_',
+    dag_id = 'etl_seoul_housing___',
     start_date = datetime.datetime(2024,1,1),
     max_active_runs = 1,
     catchup = False,

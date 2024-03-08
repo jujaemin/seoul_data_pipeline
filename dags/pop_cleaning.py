@@ -40,7 +40,7 @@ def cleaning(**context):
         pass
 
 with DAG(
-    dag_id = 'pop_cleaning_____',
+    dag_id = 'etl_seoul_population1',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
