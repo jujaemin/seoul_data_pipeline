@@ -36,7 +36,7 @@ def extract(req_params: dict):
     
     json_result = RequestTool.api_request(base_url, verify, req_params)
     
-    logging.info('Success : pop_extract')
+    logging.info("Success : pop_extract")
 
 
     return json_result
