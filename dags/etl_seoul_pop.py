@@ -31,7 +31,7 @@ base_url = 'http://openAPI.seoul.go.kr:8088'
 
 @task
 def extract(req_params: dict):
-    
+    print(req_params["MSRDT_DE"])
     verify = False
     
     json_result = RequestTool.api_request(base_url, verify, req_params)
@@ -85,7 +85,7 @@ def load(filename: str, execution_date: str, **context):
 
 
 with DAG(
-    dag_id = 'etl_seoul_population____',
+    dag_id = 'etl_seoul_population_____',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
