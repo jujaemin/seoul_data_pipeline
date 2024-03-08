@@ -2,10 +2,9 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import FileManager
+from plugins.utils import RequestTool, FileManager
 from plugins.s3 import S3Helper
 
-import requests
 import pandas as pd
 import datetime
 import logging
@@ -51,13 +50,13 @@ def transform(json_extracted, execution_date: str):
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
-        logging.info('Success : pop_transform')
-
         path = 'temp/seoul_pop'
         filename = f'{path}/{execution_date}.csv'
 
         FileManager.mkdir(path)
-        df.to_csv(filename, index=False, encoding="utf-8-sig")
+        life_people_data.to_csv(lifefilename, index=False, encoding="utf-8-sig")
+
+        logging.info('Success : pop_transform')
 
         return filename
     
