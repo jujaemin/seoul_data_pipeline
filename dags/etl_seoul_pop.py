@@ -22,7 +22,7 @@ req_params = {
     "SERVICE": 'SPOP_DAILYSUM_JACHI',
     "START_INDEX": 1,
     "END_INDEX": 1000,
-    "MSRDT_DE": '{{ macros.ds_add(ds, -4)|format("%Y%m%d") }}'
+    "MSRDT_DE": '{{ macros.ds_add(ds, -4)|datetimeformat("%Y%m%d") }}'
 }
 
 bucket_name = Variable.get('bucket_name')
@@ -85,7 +85,7 @@ def load(filename: str, execution_date: str, **context):
 
 
 with DAG(
-    dag_id = 'etl_seoul_population______',
+    dag_id = 'etl_seoul_population_______',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
