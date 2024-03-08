@@ -13,7 +13,6 @@ default_args = {
     'owner': 'airflow',
     'start_date': datetime(2024, 1, 1),
     'catchup': False,
-
     # This DAG runs only by triggering
     'schedule_interval': None,
 }
@@ -24,27 +23,39 @@ default_args = {
     template_searchpath=[FileManager.getcwd() + 'sqls/']
 )
 def analytics_ELT():
+    exec_date = '{{ ds }}'
     start_task = DummyOperator(task_id='start')
     end_task = DummyOperator(task_id='end')
     
-    park_ratio = athena.ctas(GLUE_DATABASE_AD_HOC,'park_ratio')
-
+    # Iterable dict for seperate num adn bed
     target_condition = {'medical_num': '병원수', 
                         'medical_bed': '병상수', 
                         'sports_num': '개소 (개소)', 
                         'sports_area':'면적 (㎡)'}
-    
-    ad_hocs = [park_ratio]
-    
-    # Make CTAS queries with conditions
-    for table_name, category in target_condition.items():
-        generated_operator = athena.ctas_num_area(GLUE_DATABASE_AD_HOC, table_name, category)
-        ad_hocs.append(generated_operator)
 
+    ad_hoc_tasks = []
+    analytics_tasks = []
 
-    congestion_by_division = athena.ctas(GLUE_DATABASE_ANALYTICS,'congestion_by_division')
-    congestion = athena.ctas(GLUE_DATABASE_ANALYTICS,'congestion')
-    welfare_index = athena.ctas(GLUE_DATABASE_ANALYTICS,'welfare_index')
+    drop_park_ratio = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'park_ratio')
+    ctas_park_ratio = athena.ctas(GLUE_DATABASE_AD_HOC, 'park_ratio', exec_date)
+
+    drop_congestion_by_division = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'congestion_by_division')
+    ctas_congestion_by_division = athena.ctas_num_area(GLUE_DATABASE_AD_HOC,'congestion_by_division', exec_date)
+    drop_congestion = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'congestion')
+    ctas_congestion = athena.ctas(GLUE_DATABASE_ANALYTICS,'congestion', exec_date)
+    drop_welfare_index = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'welfare_index')
+    ctas_welfare_index = athena.ctas_num_area(GLUE_DATABASE_AD_HOC,'welfare_index', exec_date)
+    
+    for table, category in target_condition.items():
+        drop = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, table)
+        ctas = athena.ctas_num_area(GLUE_DATABASE_AD_HOC, table, category, exec_date)
+        ad_hoc_tasks.append(drop >> ctas)
+
+    ad_hoc_tasks.append(drop_park_ratio >> ctas_park_ratio)
+    analytics_tasks.append([
+        drop_congestion_by_division >> ctas_congestion_by_division >> drop_congestion >> ctas_congestion,
+        drop_welfare_index >> ctas_welfare_index
+    ])
 
     # Task Flow
-    start_task >> ad_hocs >> [congestion_by_division >> congestion, welfare_index] >> end_task
+    start_task >> ad_hoc_tasks >> analytics_tasks >> end_task

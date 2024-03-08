@@ -12,7 +12,6 @@ default_args = {
     'owner': 'airflow',
     'start_date': datetime(2024, 1, 1),
     'catchup': False,
-
     # This DAG runs only by triggering
     'schedule_interval': None,
 }
@@ -23,6 +22,7 @@ default_args = {
     template_searchpath=[FileManager.getcwd() + 'sqls/']
 )
 def ad_hoc_ELT():
+    exec_date = '{{ ds }}'
     start_task = DummyOperator(task_id='start')
     end_task = DummyOperator(task_id='end')
     
@@ -37,8 +37,12 @@ def ad_hoc_ELT():
         'pop_per_month'
     ]
 
+    ctas_tasks = [] 
     # Generate tasks with AthenaOperator
-    ctas_tasks = [athena.ctas(GLUE_DATABASE_AD_HOC, t) for t in ad_hoc_tables]
+    for table in ad_hoc_tables:
+        drop_task = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, table)
+        ctas_task = athena.ctas(GLUE_DATABASE_AD_HOC, table, exec_date)
+        ctas_tasks.append(drop_task >> ctas_task)
 
     # Task Flow
     start_task >> ctas_tasks >> end_task
