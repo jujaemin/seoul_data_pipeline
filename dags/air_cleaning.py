@@ -41,7 +41,7 @@ def cleaning(**context):
 
 
 with DAG(
-    dag_id = 'Air_Cleaning',
+    dag_id = 'air_cleaning',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
