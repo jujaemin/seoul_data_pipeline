@@ -13,7 +13,7 @@ default_args = {
         'owner': 'airflow',
         'retries': 1,
         'retry_delay': timedelta(minutes=3),
-        'execution_date': '{{  macros.ds_add(ds, -4) }}',
+        'execution_date': '{{ macros.ds_add(ds, -4) }}',
     }
 
 req_params = {
@@ -22,7 +22,7 @@ req_params = {
     "SERVICE": 'SPOP_DAILYSUM_JACHI',
     "START_INDEX": 1,
     "END_INDEX": 1000,
-    "MSRDT_DE": '{{  macros.ds_add(ds, -4) }}'.replace('-','')
+    "MSRDT_DE": '{{ macros.ds_add(ds, -4) }}'.replace('-','')
 }
 
 bucket_name = Variable.get('bucket_name')
@@ -84,7 +84,7 @@ def load(filename: str, execution_date: str, **context):
 
 
 with DAG(
-    dag_id = 'etl_seoul_population__',
+    dag_id = 'etl_seoul_population___',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
