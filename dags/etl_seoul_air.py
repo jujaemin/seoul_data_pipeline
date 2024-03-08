@@ -75,7 +75,7 @@ def load(filename: str, execution_date: str, **context):
     FileManager.remove(filename)
 
 with DAG(
-    dag_id='ETL_seoul_air',
+    dag_id='etl_seoul_air_',
     schedule_interval='@daily',
     catchup=True,
     default_args=default_args
