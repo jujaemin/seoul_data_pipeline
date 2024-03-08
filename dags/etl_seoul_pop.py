@@ -22,7 +22,7 @@ req_params = {
     "SERVICE": 'SPOP_DAILYSUM_JACHI',
     "START_INDEX": 1,
     "END_INDEX": 1000,
-    "MSRDT_DE": execution_date.strftime("%Y-%m-%d").replace('-','')
+    "MSRDT_DE": 'execution_date'.strftime("%Y-%m-%d").replace('-','')
 }
 
 bucket_name = Variable.get('bucket_name')
@@ -54,7 +54,7 @@ def transform(json_extracted, execution_date: str):
         filename = f'{path}/{execution_date}.csv'
 
         FileManager.mkdir(path)
-        life_people_data.to_csv(lifefilename, index=False, encoding="utf-8-sig")
+        life_people_data.to_csv(filename, index=False, encoding="utf-8-sig")
 
         logging.info('Success : pop_transform')
 
@@ -68,7 +68,7 @@ def transform(json_extracted, execution_date: str):
         return None
 
 @task
-def load(record):
+def load(filename: str, execution_date: str, **context):
     s3_conn_id = 'aws_conn_id'
     key = s3_key_path + f'{execution_date}.csv'
     replace = True
