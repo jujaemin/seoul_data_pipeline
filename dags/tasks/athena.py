@@ -2,8 +2,12 @@ from airflow.models import Variable
 from airflow.providers.amazon.aws.operators.athena import AthenaOperator
 
 S3_BUCKET = Variable.get('bucket_name')
+AWS_CONNECTION = 'aws_conn_id'
+S3_REGION = Variable.get('s3_region')
 
 class AthenaTool():
+    # Default parameters for AthenaOperator
+    
     
     def ctas(output_database:str, table_name:str):
         return AthenaOperator(
@@ -15,6 +19,11 @@ class AthenaTool():
             },
             database=output_database,
             output_location=f's3://{S3_BUCKET}/{output_database}/{table_name}',
+
+            aws_conn_id=AWS_CONNECTION,
+            region_name=S3_REGION,
+            sleep_time=30,
+            max_tries=None,
         )
 
     def ctas_num_area(output_database:str, table_name:str, category:str):
@@ -28,4 +37,9 @@ class AthenaTool():
             },
             database=output_database,
             output_location=f's3://{S3_BUCKET}/{output_database}/{table_name}',
+            
+            aws_conn_id=AWS_CONNECTION,
+            region_name=S3_REGION,
+            sleep_time=30,
+            max_tries=None,
         )
