@@ -54,7 +54,7 @@ def transform(json_extracted, execution_date: str):
         filename = f'{path}/{execution_date}.csv'
 
         FileManager.mkdir(path)
-        life_people_data.to_csv(filename, index=False, header = False, encoding="utf-8-sig")
+        life_people_data.to_csv(filename, index=False, header=False, encoding="utf-8-sig")
 
         logging.info('Success : pop_transform')
 
