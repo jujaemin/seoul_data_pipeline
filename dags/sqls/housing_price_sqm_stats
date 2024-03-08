@@ -10,7 +10,7 @@ FROM
 SELECT
   year_month,
   '대한민국' AS country,
-	'서울특별시' AS city,
+  '서울특별시' AS city,
   gu,
   COUNT(*) AS trading_volume,
   AVG(price_per_sqm) * 3.306 as avg_price_per_pyu
