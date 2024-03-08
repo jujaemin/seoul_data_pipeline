@@ -95,7 +95,7 @@ def load(s3_conn_id, bucket_name, key, transformed_records):
     logging.info("load end")
 
 with DAG(
-    dag_id='ETL_seoul_noise',
+    dag_id='etl_seoul_noise_',
     start_date = datetime(2024, 1, 1),
     schedule = CronTriggerTimetable("0 5 * * *", timezone="UTC"), # 한국 시각 기준 매일 14시 00분 실행
     max_active_runs = 1,
