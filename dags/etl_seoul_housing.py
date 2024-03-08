@@ -67,7 +67,7 @@ def transform(json_extracted, execution_date: str):
                         result.append(filename)
                         
                         FileManager.mkdir(path)
-                        housing_data.to_csv(filename, index=False, encoding="utf-8-sig")
+                        housing_data.to_csv(filename, index=False, header = False, encoding="utf-8-sig")
         
                 except Exception as e:
                     logging.info(e)
