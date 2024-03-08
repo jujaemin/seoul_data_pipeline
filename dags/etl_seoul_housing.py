@@ -39,7 +39,7 @@ def extract(**context):
                     "SERVICE": 'tbLnOpendataRtmsV',
                     "START_INDEX": 1,
                     "END_INDEX": 1000,
-                    "EXTRA": ' / / / / / / / / '
+                    "EXTRA": ' / / / / / / / / ',
                     "MSRDT_DE": date
             }
             try:
