@@ -5,7 +5,6 @@ from datetime import timedelta
 from plugins.utils import RequestTool, FileManager
 from plugins.s3 import S3Helper
 
-import requests
 import pandas as pd
 import datetime
 import logging
@@ -47,8 +46,9 @@ def extract(req_params: dict):
         
             result.append(json_result)
             current_date += timedelta(days=1)
-        except:
-            current_date += timedelta(days=1)
+        except Exception as e:
+                logging.error(f'Error occurred during loading to S3: {str(e)}')
+                current_date += timedelta(days=1)
 
     logging.info('Success : housing_extract')
 
@@ -56,27 +56,26 @@ def extract(req_params: dict):
 
 @task
 def transform(json_extracted, execution_date: str):
-    
-    for response in json_extracted:
-
-        try:
-            df = pd.DataFrame(response['tbLnOpendataRtmsV']['row'])
-
-            housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
-            result.append([housing_data, date])
-            path = 'temp/seoul_housing'
-            filename = f'{path}/{execution_date}.csv'
-
-            FileManager.mkdir(path)
-            df.to_csv(filename, index=False, encoding="utf-8-sig")
+        result = []
         
-        except Exception as e:
-            logging.info(e)
-            pass
+        for response in json_extracted:
+                try:
+                        df = pd.DataFrame(response['tbLnOpendataRtmsV']['row'])
+                        housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
+                        path = 'temp/seoul_housing'
+                        filename = f'{path}/{execution_date}.csv'
+                        result.append(filename)
+                        
+                        FileManager.mkdir(path)
+                        housing_data.to_csv(filename, index=False, encoding="utf-8-sig")
+        
+                except Exception as e:
+                    logging.info(e)
+                    pass
 
     logging.info('Success : housing_transform')
         
-    return filename
+    return result
 
 @task
 def load(filename: str, execution_date: str, **context):
@@ -90,8 +89,9 @@ def load(filename: str, execution_date: str, **context):
             S3Helper.upload(s3_conn_id, bucket_name, key, record, replace)
 
             FileManager.remove(record)
-        except:
-            pass
+        except Exception as e:
+                logging.info(e)
+                pass
 
         logging.info('Success : housing_load')
 
