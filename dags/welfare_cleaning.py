@@ -39,7 +39,7 @@ def cleaning(**context):
         pass
 
 with DAG(
-    dag_id = 'welfare_cleaning',
+    dag_id = 'welfare_cleaning_',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@monthly',
     max_active_runs = 1,
@@ -54,7 +54,7 @@ with DAG(
 
     sensor = ExternalTaskSensor(
         task_id='externaltasksensor',
-        external_dag_id='etl_seoul_welfare_',
+        external_dag_id='etl_seoul_welfare__',
         external_task_id='load',
         timeout=5*60,
         mode='reschedule',
