@@ -50,6 +50,8 @@ def transform(json_extracted, execution_date: str):
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
+        print(FileManager.getcwd())    
+
         path = 'temp/seoul_pop'
         filename = f'{path}/{execution_date}.csv'
 
@@ -62,7 +64,6 @@ def transform(json_extracted, execution_date: str):
     
     except Exception as e:
 
-        logging.info('no data found')
         logging.info(e)
 
         return None
@@ -84,7 +85,7 @@ def load(filename: str, execution_date: str, **context):
 
 
 with DAG(
-    dag_id = 'etl_seoul_population___',
+    dag_id = 'etl_seoul_population____',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
