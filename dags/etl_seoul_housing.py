@@ -96,7 +96,7 @@ def load(filename: str, execution_date: str, **context):
         logging.info('Success : housing_load')
 
 with DAG(
-    dag_id = 'etl_seoul_housing',
+    dag_id = 'ETL_seoul_housing',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
