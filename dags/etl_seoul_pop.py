@@ -31,7 +31,7 @@ base_url = 'http://openAPI.seoul.go.kr:8088'
 
 @task
 def extract(req_params: dict):
-    
+    print(req_params["MSRDT_DE"])
     verify = False
     
     json_result = RequestTool.api_request(base_url, verify, req_params)
