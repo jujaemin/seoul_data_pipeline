@@ -58,7 +58,7 @@ def transform(json_extracted, execution_date: str):
 
             housing_data = df[['DEAL_YMD', 'SGG_NM', 'BLDG_NM', 'OBJ_AMT', 'BLDG_AREA', 'FLOOR', 'BUILD_YEAR', 'HOUSE_TYPE']]
             result.append([housing_data, date])
-             path = 'temp/seoul_housing'
+            path = 'temp/seoul_housing'
             filename = f'{path}/{execution_date}.csv'
 
             FileManager.mkdir(path)
