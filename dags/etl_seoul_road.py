@@ -86,7 +86,7 @@ def load(filename: str, execution_date: str):
 
 
 with DAG(
-    dag_id='ETL_seoul_road',
+    dag_id='etl_seoul_road_',
     schedule_interval='@daily',
     catchup=True,
     default_args=default_args
