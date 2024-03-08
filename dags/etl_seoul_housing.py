@@ -72,7 +72,7 @@ def transform(json_extracted, execution_date: str):
     return filename
 
 @task
-def upload(filename: str, execution_date: str, **context):
+def load(filename: str, execution_date: str, **context):
     
     s3_conn_id = 'aws_conn_id'
     key = s3_key_path + f'{execution_date}.csv'
@@ -103,7 +103,7 @@ with DAG(
 ) as dag:
     aws_conn_id='aws_default'
 
+    json = extract(req_params)
+    filename = transform(json)
+    load(filename)
 
-    records = transform(extract(base_url))
-
-    upload(records)
