@@ -10,6 +10,12 @@ import pandas as pd
 import datetime
 import logging
 
+default_args = {
+        'owner': 'airflow',
+        'retries': 1,
+        'retry_delay': timedelta(minutes=5),
+        'execution_date': '{{ds}}'
+    }
 
 req_params = {
     "KEY": Variable.get('api_key_seoul'),
@@ -95,12 +101,7 @@ with DAG(
     schedule = '@daily',
     max_active_runs = 1,
     catchup = False,
-    default_args = {
-        'owner': 'airflow',
-        'retries': 1,
-        'retry_delay': timedelta(minutes=5),
-        'execution_date': '{{ds}}'
-    }
+    default_args = default_args
 ) as dag:
     aws_conn_id='aws_default'
 
