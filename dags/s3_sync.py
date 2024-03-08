@@ -1,14 +1,15 @@
-from datetime import datetime
 from airflow.decorators import dag
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
+
+from datetime import datetime, timedelta
 
 S3_BUCKET = Variable.get('bucket_name')
 
 default_args = {
     'owner': 'airflow',
     'start_date': datetime(2024, 1, 1),
-    'schedule_interval': None,
+    'schedule_interval': timedelta(minutes=5),
     'catchup': False 
 }
 
