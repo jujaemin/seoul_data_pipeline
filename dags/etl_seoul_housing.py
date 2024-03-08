@@ -65,6 +65,7 @@ def transform(json_extracted, execution_date: str):
                         path = 'temp/seoul_housing'
                         filename = f'{path}/{execution_date}.csv'
                         result.append(filename)
+                        print(FileManager.getcwd())
                         
                         FileManager.mkdir(path)
                         housing_data.to_csv(filename, index=False, header = False, encoding="utf-8-sig")
