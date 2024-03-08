@@ -22,7 +22,7 @@ s3_key_path = 'raw_data/seoul_housing/'
 base_url = 'http://openAPI.seoul.go.kr:8088'
 
 @task
-def extract(req_params: dict):
+def extract(**context):
 
     result = []
     verify = False
@@ -104,7 +104,7 @@ with DAG(
 ) as dag:
     aws_conn_id='aws_default'
 
-    json = extract(req_params)
+    json = extract()
     filename = transform(json)
     load(filename)
 
