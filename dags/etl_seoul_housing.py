@@ -28,6 +28,7 @@ base_url = 'http://openAPI.seoul.go.kr:8088'
 def extract(req_params: dict):
 
     result = []
+    verify = False
 
     start_date = datetime.datetime(2024,1,1).date()
     end_date = datetime.datetime.today().date()
