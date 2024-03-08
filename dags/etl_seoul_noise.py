@@ -15,6 +15,10 @@ import csv
 import io
 import logging
 
+default_args = {
+    "logical_date": "{{macros.ds_add(ds, -14)}}"
+    }
+
 @task
 def extract(api_key: str, reg_dttm: str) -> List[dict]:
     logging.info("extract start")
@@ -42,6 +46,8 @@ def extract(api_key: str, reg_dttm: str) -> List[dict]:
                 end_index + "/" + \
                 gu_name + "/" + \
                 reg_dttm
+        
+        logging.info(f"extracting... -> {reg_dttm} {gu_name}")
         
         # GET Request
         response = RequestTool.api_request(url, verify=True, params=None)
@@ -95,11 +101,11 @@ def load(s3_conn_id, bucket_name, key, transformed_records):
     logging.info("load end")
 
 with DAG(
-    dag_id='etl_seoul_noise_',
-    start_date = datetime(2024, 1, 1),
+    dag_id='etl_seoul_noise',
+    start_date = datetime(2024, 2, 22), # API로부터 현재 시점으로부터 14일 전의 데이터를 가져오고, API는 최근 한 달 간의 데이터만을 제공하므로, 2가지 사항을 고려하여 적절하게 세팅해야 합니다.
     schedule = CronTriggerTimetable("0 5 * * *", timezone="UTC"), # 한국 시각 기준 매일 14시 00분 실행
     max_active_runs = 1,
-    catchup = False,
+    catchup = True,
     default_args = {
         'retries': 1,
         'retry_delay': timedelta(minutes=3),
@@ -111,15 +117,11 @@ with DAG(
     # AWS Conn 정보 가져오기
     aws_conn_id = 'aws_conn_id'
 
-    # API로부터 가져올 데이터의 등록일시 지정
-    target_date = datetime.now() - timedelta(days=13)
-    reg_dttm = target_date.strftime("%Y-%m-%d")
-
     # S3 버킷 및 Key 지정
     s3_bucket_name = "de-team5-s3-01"
-    s3_key = "raw_data/seoul_noise/" + reg_dttm + ".csv"
+    s3_key = "raw_data/seoul_noise/" + default_args["logical_date"] + ".csv"
     
     # extract & transform
-    transformed_records = transform(extract(api_key, reg_dttm))
+    transformed_data = transform(extract(api_key, default_args["logical_date"]))
     # load
-    load(aws_conn_id, s3_bucket_name, s3_key, transformed_records)
+    load(aws_conn_id, s3_bucket_name, s3_key, transformed_data)
