@@ -42,7 +42,7 @@ def cleaning(**context):
         pass
 
 with DAG(
-    dag_id = 'Noise_Cleaning',
+    dag_id = 'noise_cleaning',
     start_date = datetime.datetime(2024,1,1),
     schedule = CronTriggerTimetable("0 5 * * *", timezone="UTC"),
     max_active_runs = 1,
