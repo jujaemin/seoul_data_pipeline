@@ -10,7 +10,7 @@ class RequestTool(AirflowPlugin):
         try:
             #추후 api_url 을 Variable 형태로 변환해서 사용하는걸로 변경 필요
             if api_url == 'http://openAPI.seoul.go.kr:8088':
-                for value in params.values:
+                for value in params.values():
                     api_url += f'/{value}'
                 response = requests.get(api_url, verify=verify)
                 response.raise_for_status()
