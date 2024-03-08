@@ -40,7 +40,7 @@ def cleaning(**context):
         pass
 
 with DAG(
-    dag_id = 'pop_cleaning__',
+    dag_id = 'pop_cleaning___',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
@@ -55,7 +55,7 @@ with DAG(
 
     sensor = ExternalTaskSensor(
         task_id='externaltasksensor',
-        external_dag_id='etl_seoul_population___',
+        external_dag_id='etl_seoul_population____',
         external_task_id='load',
         timeout=5*60,
         mode='reschedule',
