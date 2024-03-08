@@ -22,7 +22,7 @@ req_params = {
     "SERVICE": 'SPOP_DAILYSUM_JACHI',
     "START_INDEX": 1,
     "END_INDEX": 1000,
-    "MSRDT_DE": '{{ macros.ds_add(ds, -4) }}'.replace('-','')
+    "MSRDT_DE": '{{macros.ds_add(ds, -4)}}'.replace('-','')
 }
 
 bucket_name = Variable.get('bucket_name')
