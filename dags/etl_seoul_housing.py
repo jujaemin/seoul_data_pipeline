@@ -65,6 +65,7 @@ def transform(json_extracted, execution_date: str):
                         path = 'temp/seoul_housing'
                         filename = f'{path}/{execution_date}.csv'
                         result.append(filename)
+                        print(FileManager.getcwd())
                         
                         FileManager.mkdir(path)
                         housing_data.to_csv(filename, index=False, header = False, encoding="utf-8-sig")
@@ -96,7 +97,7 @@ def load(filename: str, execution_date: str, **context):
         logging.info('Success : housing_load')
 
 with DAG(
-    dag_id = 'etl_seoul_housing__',
+    dag_id = 'etl_seoul_housing___',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,

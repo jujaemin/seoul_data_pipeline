@@ -2,65 +2,45 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import RequestTool, FileManager
+from plugins.utils import FileManager
 from plugins.s3 import S3Helper
 
+import requests
 import pandas as pd
 import datetime
 import logging
 
-default_args = {
-        'owner': 'airflow',
-        'retries': 1,
-        'retry_delay': timedelta(minutes=3),
-        'execution_date': '{{ macros.ds_add(ds, -4) }}',
-    }
 
-req_params = {
-    "KEY": Variable.get('api_key_seoul'),
-    "TYPE": 'json',
-    "SERVICE": 'SPOP_DAILYSUM_JACHI',
-    "START_INDEX": 1,
-    "END_INDEX": 1000,
-    "MSRDT_DE": '{{ macros.ds_add(ds, -4) | ds_format("%Y%m%d") }}'
-}
 
-bucket_name = Variable.get('bucket_name')
-s3_key_path = 'raw_data/seoul_pop/'
-base_url = 'http://openAPI.seoul.go.kr:8088'
 
 @task
-def extract(req_params: dict):
-    print(req_params["MSRDT_DE"])
-    verify = False
+def extract(base_url, **context):
     
-    json_result = RequestTool.api_request(base_url, verify, req_params)
+    day = context["execution_date"] - timedelta(days=4)
+    date = day.date().strftime('%Y-%m-%d')
+    url = base_url+f'/{api}/json/SPOP_DAILYSUM_JACHI/1/1000/'+date.replace('-', '')
+    res = requests.get(url)
+    json = res.json()
     
-    logging.info("Success : pop_extract")
+    logging.info('Success : pop_extract')
 
 
-    return json_result
+    return [json, date]
 
 @task
-def transform(json_extracted, execution_date: str):
+def transform(response):
 
     try:
+        data = response[0]
+        date = response[1]
 
-        df = pd.DataFrame(json_extracted['SPOP_DAILYSUM_JACHI']['row'])
+        df = pd.DataFrame(data['SPOP_DAILYSUM_JACHI']['row'])
 
         life_people_data = df[['STDR_DE_ID', 'SIGNGU_NM', 'TOT_LVPOP_CO']]
 
-        print(FileManager.getcwd())    
-
-        path = 'temp/seoul_pop'
-        filename = f'{path}/{execution_date}.csv'
-
-        FileManager.mkdir(path)
-        life_people_data.to_csv(filename, index=False, header=False, encoding="utf-8-sig")
-
         logging.info('Success : pop_transform')
 
-        return filename
+        return [life_people_data, date]
     
     except Exception as e:
 
@@ -69,31 +49,68 @@ def transform(json_extracted, execution_date: str):
         return None
 
 @task
-def load(filename: str, execution_date: str, **context):
-    s3_conn_id = 'aws_conn_id'
-    key = s3_key_path + f'{execution_date}.csv'
-    replace = True
+def load(record):
 
     try:
-        S3Helper.upload(s3_conn_id, bucket_name, key, filename, replace)
+        data = record[0]
+        date = record[1]
+
+        file_name = f'{date}.csv'
+        file_path = 'temp/seoul_pop'
+
+        path = file_path + '/' + file_name
         
+        FileManager.mkdir(file_path)
+
+        data.to_csv(path, header = False, index = False, encoding='utf-8-sig')
+
+        logging.info('Success : pop_load')
+
+        return [path, file_name]
+    
+    except TypeError:
+        logging.error('no data found')
+        return None
+
+    
+@task
+def upload(file):
+    
+    try:
+        local_file = file[0]
+        file_name = file[1]
+
+        s3_key = key + str(file_name)
+
+        S3Helper.upload(aws_conn_id, bucket_name, s3_key, local_file, True)
+
+        FileManager.remove(local_file)
+
+        logging.info(f'Success : pop_upload ({file_name})')
+    
     except Exception as e:
-        logging.error(f'Error occurred during loading to S3: {str(e)}')
-        raise
-    logging.info('CSV file has been loaded to S3.')
-    FileManager.remove(filename)
+        logging.info('no data found')
+        logging.info(e)
+        pass
 
 
 with DAG(
-    dag_id = 'etl_seoul_population________',
+    dag_id = 'etl_seoul_population1',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
     catchup = True,
-    default_args = default_args
+    default_args = {
+        'retries': 1,
+        'retry_delay': timedelta(minutes=3),
+    }
 ) as dag:
     aws_conn_id='aws_default'
+    bucket_name = 'de-team5-s3-01'
+    key = 'raw_data/seoul_pop/'
+    base_url = 'http://openAPI.seoul.go.kr:8088'
+    api= Variable.get('api_key_seoul')
 
-    json = extract(req_params)
-    filename = transform(json)
-    load(filename)
+    records = transform(extract(base_url))
+
+    upload(load(records))
