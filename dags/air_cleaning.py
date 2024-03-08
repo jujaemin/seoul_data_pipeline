@@ -41,7 +41,7 @@ def cleaning(**context):
 
 
 with DAG(
-    dag_id = 'Air_Cleaning',
+    dag_id = 'air_cleaning',
     start_date = datetime.datetime(2024,1,1),
     schedule = '@daily',
     max_active_runs = 1,
@@ -56,7 +56,7 @@ with DAG(
 
     sensor = ExternalTaskSensor(
         task_id='externaltasksensor',
-        external_dag_id='etl_seoul_air',
+        external_dag_id='ETL_seoul_air',
         external_task_id='load',
         timeout=5*60,
         mode='reschedule',

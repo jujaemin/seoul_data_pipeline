@@ -52,7 +52,7 @@ def cleaning():
             pass
 
 with DAG(
-    dag_id = 'Housing_Cleaning',
+    dag_id = 'jousing_cleaning',
     start_date = datetime.datetime(2024,1,1),
     max_active_runs = 1,
     catchup = False,
@@ -66,7 +66,7 @@ with DAG(
     
     sensor = ExternalTaskSensor(
         task_id='externaltasksensor',
-        external_dag_id='etl_seoul_housing',
+        external_dag_id='ETL_seoul_housing',
         external_task_id='load',
         timeout=5*60,
         mode='reschedule',

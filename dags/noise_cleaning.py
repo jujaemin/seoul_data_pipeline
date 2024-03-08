@@ -42,7 +42,7 @@ def cleaning(**context):
         pass
 
 with DAG(
-    dag_id = 'Noise_Cleaning',
+    dag_id = 'noise_cleaning',
     start_date = datetime.datetime(2024,1,1),
     schedule = CronTriggerTimetable("0 5 * * *", timezone="UTC"),
     max_active_runs = 1,
@@ -57,7 +57,7 @@ with DAG(
 
     sensor = ExternalTaskSensor(
         task_id='externaltasksensor',
-        external_dag_id='etl_seoul_noise',
+        external_dag_id='ETL_seoul_noise',
         external_task_id='load',
         timeout=5*60,
         mode='reschedule',
