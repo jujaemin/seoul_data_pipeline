@@ -5,7 +5,7 @@ import os
 
 
 class RequestTool(AirflowPlugin):
-    @classmethod
+    @staticmethod
     def api_request(api_url: str, verify: bool, params: dict):
         try:
             #추후 api_url 을 Variable 형태로 변환해서 사용하는걸로 변경 필요
