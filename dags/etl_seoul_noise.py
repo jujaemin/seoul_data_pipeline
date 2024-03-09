@@ -23,11 +23,8 @@ default_args = {
 def extract(api_key: str, reg_dttm: str) -> List[dict]:
     logging.info("extract start")
     
-    base_url = "http://openapi.seoul.go.kr:8088"
-    file_type = "json"
-    service_name = "IotVdata017"
-    start_index = "1"
-    end_index = "1000"
+    base_url = 'http://openAPI.seoul.go.kr:8088'
+    
     gu_names = ["Jongno-gu",    "Jung-gu",      "Yongsan-gu",       "Seongdong-gu",
                 "Gwangjin-gu",  "Dongdaemun-gu","Jungnang-gu",      "Seongbuk-gu",
                 "Gangbuk-gu",   "Dobong-gu",    "Nowon-gu",         "Eunpyeong-gu",
@@ -35,22 +32,23 @@ def extract(api_key: str, reg_dttm: str) -> List[dict]:
                 "Guro-gu",      "Geumcheon-gu", "Yeongdeungpo-gu",  "Dongjak-gu",
                 "Gwanak-gu",    "Seocho-gu",    "Gangnam-gu",       "Songpa-gu",
                 "Gangdong-gu"]
-
+    
     responses = []
     for gu_name in gu_names:
-        url =   base_url + "/" + \
-                api_key + "/" + \
-                file_type + "/" + \
-                service_name + "/" + \
-                start_index + "/" + \
-                end_index + "/" + \
-                gu_name + "/" + \
-                reg_dttm
-        
         logging.info(f"extracting... -> {reg_dttm} {gu_name}")
         
+        req_params = {
+                        "KEY": api_key,
+                        "FILE_TYPE": 'json',
+                        "SERVICE_NAME": 'IotVdata017',
+                        "START_INDEX": "1",
+                        "END_INDEX": "1000",
+                        "GU_NAMES": gu_name,
+                        "REG_DTTM": reg_dttm
+                }
+        
         # GET Request
-        response = RequestTool.api_request(url, verify=True, params=None)
+        response = RequestTool.api_request(base_url, verify=True, params=req_params)
         
         # API 측으로부터 정상적인 메시지를 받았는 지 체크    
         if 'IotVdata017' not in response:
