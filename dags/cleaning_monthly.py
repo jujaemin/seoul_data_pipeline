@@ -5,7 +5,6 @@ from airflow.decorators import task
 from plugins import filter
 from plugins.utils import FileManager
 from plugins.s3 import S3Helper
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 import datetime
 
@@ -51,13 +50,5 @@ with DAG(
     aws_conn_id='aws_conn_id'
     bucket_name = 'de-team5-s3-01'
 
-    trigger_dag_task = TriggerDagRunOperator(
-        task_id='trigger_dag_task',
-        trigger_dag_id='',
-        execution_date='{{data_interval_start}}',
-        reset_dag_run=True,
-        poke_interval=60,
-        allowed_states=['success', 'failed', 'upstream_failed']
-    )
 
-    welfare_cleaning() >> trigger_dag_task
+    welfare_cleaning()
