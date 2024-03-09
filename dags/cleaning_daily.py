@@ -32,7 +32,8 @@ def road_cleaning(**context):
         FileManager.remove(path)
 
     
-    except:
+    except Exception as e:
+        logging.info(e)
         pass
 
 @task
@@ -59,7 +60,8 @@ def air_cleaning(**context):
 
         FileManager.remove(path)
 
-    except:
+    except Exception as e:
+        logging.info(e)
         pass
 
 @task
@@ -86,7 +88,8 @@ def housing_cleaning(**context):
 
             FileManager.remove(path)
     
-        except:
+        except Exception as e:
+        logging.info(e)
             pass
 
 @task
@@ -113,7 +116,8 @@ def pop_cleaning(**context):
 
         FileManager.remove(path)
 
-    except:
+    except Exception as e:
+        logging.info(e)
         pass
 
 with DAG(
