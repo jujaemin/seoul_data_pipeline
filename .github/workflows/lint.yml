@@ -1,4 +1,4 @@
-name: lint using Ruff
+name: Lint Using Ruff
 
 on:
   push:
