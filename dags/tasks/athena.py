@@ -1,7 +1,5 @@
 from airflow.models import Variable
-from airflow.decorators import task
 from airflow.providers.amazon.aws.operators.athena import AthenaOperator
-from utils.s3 import S3Helper
 
 S3_BUCKET = Variable.get('bucket_name')
 AWS_CONNECTION = 'aws_conn_id'
