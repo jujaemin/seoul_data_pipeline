@@ -131,7 +131,7 @@ with DAG(
     
     trigger_dag_task = TriggerDagRunOperator(
         task_id='trigger_dag_task',
-        trigger_dag_id='',
+        trigger_dag_id='ad_hoc_ELT',
         execution_date='{{data_interval_start}}',
         reset_dag_run=True,
         poke_interval=60,
