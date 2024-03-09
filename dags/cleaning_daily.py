@@ -7,6 +7,8 @@ from plugins.utils import FileManager
 from plugins.s3 import S3Helper
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
+import logging
+
 @task
 def road_cleaning(**context):
     try:
