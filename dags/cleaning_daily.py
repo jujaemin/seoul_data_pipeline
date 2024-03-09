@@ -89,7 +89,7 @@ def housing_cleaning(**context):
             FileManager.remove(path)
     
         except Exception as e:
-        logging.info(e)
+            logging.info(e)
             pass
 
 @task
