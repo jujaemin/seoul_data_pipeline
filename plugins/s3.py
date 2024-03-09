@@ -2,6 +2,7 @@ from airflow.plugins_manager import AirflowPlugin
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 class S3Helper(AirflowPlugin):
+    name = 'S3Helper'
     # Upload files to S3
     @classmethod
     def upload(cls, s3_conn_id: str, bucket_name: str, key: str, filename: str, replace: bool):

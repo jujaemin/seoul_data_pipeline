@@ -17,9 +17,14 @@ default_args = {
     default_args=default_args,
 )
 def s3_sync():
+    bash_script = f'''
+        aws s3 sync "s3://{S3_BUCKET}/airflow/dags" "." --delete
+        aws s3 sync "s3://{S3_BUCKET}/airflow/plugins" "../plugins" --delete
+    '''
+
     s3_sync_task = BashOperator(
         task_id='s3_sync_task',
-        bash_command=f'aws s3 sync "s3://{S3_BUCKET}/airflow/dags" "." --delete'
+        bash_command=bash_script
     )
 
     s3_sync_task
