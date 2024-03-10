@@ -46,3 +46,5 @@ def ad_hoc_ELT():
 
     # Task Flow
     start_task >> ctas_tasks >> end_task
+
+ad_hoc_ELT = ad_hoc_ELT()
