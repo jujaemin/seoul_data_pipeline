@@ -3,8 +3,8 @@ from airflow import DAG
 from datetime import timedelta
 from airflow.decorators import task
 from plugins import filter
-from plugins.utils import FileManager
-from plugins.s3 import S3Helper
+from utils import FileManager
+from s3 import S3Helper
 from airflow.sensors.external_task import ExternalTaskSensor
 
 import datetime

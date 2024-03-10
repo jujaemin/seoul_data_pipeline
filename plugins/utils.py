@@ -5,6 +5,7 @@ import os
 
 
 class RequestTool(AirflowPlugin):
+    name = 'RequestTool'
     @staticmethod
     def api_request(api_url: str, verify: bool, params: dict):
         try:
@@ -30,6 +31,7 @@ class RequestTool(AirflowPlugin):
 
 
 class FileManager(AirflowPlugin):
+    name = 'FileManager'
     @staticmethod
     def getcwd():
         return os.getcwd()
