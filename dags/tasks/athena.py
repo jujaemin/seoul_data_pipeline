@@ -15,8 +15,8 @@ class AthenaTool():
                 'output_database': output_database
             },
             database=output_database,
+            output_location=f's3://{S3_BUCKET}/{output_database}/{table_name}',
             aws_conn_id=AWS_CONNECTION,
-            region_name=S3_REGION,
             sleep_time=30,
             max_tries=None,
         )
