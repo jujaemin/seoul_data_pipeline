@@ -59,3 +59,5 @@ def analytics_ELT():
 
     # Task Flow
     start_task >> ad_hoc_tasks >> analytics_tasks >> end_task
+
+analytics_ELT = analytics_ELT()
