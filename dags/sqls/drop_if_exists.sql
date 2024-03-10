@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS {{ params.output_database }}.{{ params.output_table }};

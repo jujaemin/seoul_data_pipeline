@@ -4,6 +4,7 @@ from airflow.models import Variable
 from datetime import datetime, timedelta
 from utils import RequestTool, FileManager
 from s3 import S3Helper
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 import pandas as pd
 import logging
 
@@ -84,10 +85,20 @@ def load(filename: str, execution_date: str, **context):
     FileManager.remove(filename)
 
 with DAG(
-    dag_id='etl_seoul_welfare__',
+    dag_id='etl_monthly',
     schedule_interval='@monthly',
     catchup=True,
     default_args=default_args
 ) as dag:
+    trigger_dag_task = TriggerDagRunOperator(
+        task_id='trigger_dag_task',
+        trigger_dag_id='cleaning_monthly',
+        execution_date='{{data_interval_start}}',
+        reset_dag_run=True,
+        poke_interval=60,
+        allowed_states=['success', 'failed', 'upstream_failed']
+    )
     filename = extract_and_transform(req_params)
-    load(filename)
+    welfare_task = load(filename)
+
+    welfare_task >> trigger_dag_task

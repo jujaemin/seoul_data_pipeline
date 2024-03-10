@@ -17,7 +17,7 @@ en_to_ko = {'Jongno-gu': '종로구', 'Jung-gu': '중구', 'Yongsan-gu': '용산
             'Yeongdeungpo-gu': '영등포구', 'Dongjak-gu': '동작구', 'Gwanak-gu': '관악구', 'Seocho-gu': '서초구', 'Gangnam-gu': '강남구', 'Songpa-gu': '송파구',
             'Gangdong-gu': '강동구', 'Seoul_Grand_Park': '서울대공원'}
 
-column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6,7], 'road': [0,1,2,3,4,5,6,7,8], 'welfare': [0,1,2,3,4,5,6,7,8,9,10,11,12], 'noise': [4,5,6,32,64]}
+column_indexes = {'air': [0,1,2,3,4,5,6,7,8], 'pop': [0,1,2], 'housing': [0,1,2,3,4,5,6,7], 'road': [0,1,2,3,4,5,6,7,8], 'welfare': [0,1,2,3,4,5,6,7,8,9,10,11,12], 'noise': [3,4,5,31,63]}
 
 class air(BaseModel):
     measured_date: date
@@ -126,7 +126,6 @@ class housing(BaseModel):
 
     @classmethod
     def from_dataframe_row(cls, row):
-        #row['건축년도'] = row['건축년도'] if pd.notna(row['건축년도']) else 0
         return cls(**row)
     
     @validator('contracted_date', pre=True, always=True)
@@ -340,10 +339,7 @@ class noise(BaseModel):
     @validator('registered_date', pre=True, always=True)
     #날짜 데이터 타입 처리
     def parse_date(cls, value):
-        if isinstance(value, int):
-            value = str(value)
-
-        return datetime(int(value[:4]), int(value[5:7]), int(value[8:10]), int(value[11:13]), int(value[14:16]), int(value[17:19]))
+        return value
     
     @validator('gu')
     def translate(cls, value):
@@ -352,8 +348,7 @@ class noise(BaseModel):
     @validator('avg_noise')
     def handle_noise_columns(cls, value, values):
         # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        noise_values = values.get('avg_noise', None)
-        return noise_values.mean() if noise_values is not None and not noise_values.isnull().all() else value
+        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
         
     @validator('region_type')
     def handle_area_column(cls, value):
@@ -370,3 +365,4 @@ class noise(BaseModel):
     def handle_hjd_column(cls, value):
         # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
+

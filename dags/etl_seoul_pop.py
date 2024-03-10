@@ -2,8 +2,8 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.models import Variable
 from datetime import timedelta
-from plugins.utils import FileManager
-from plugins.s3 import S3Helper
+from utils import FileManager
+from s3 import S3Helper
 
 import requests
 import pandas as pd
