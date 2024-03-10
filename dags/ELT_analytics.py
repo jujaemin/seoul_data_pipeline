@@ -25,6 +25,7 @@ default_args = {
 def analytics_ELT():
     exec_date = '{{ ds }}'
     start_task = DummyOperator(task_id='start')
+    ad_hoc_to_analytics = DummyOperator(task_id='ad_hoc_to_analytics')
     end_task = DummyOperator(task_id='end')
     
     # Iterable dict for seperate num adn bed
@@ -34,17 +35,16 @@ def analytics_ELT():
                         'sports_area':'면적 (㎡)'}
 
     ad_hoc_tasks = []
-    analytics_tasks = []
 
     drop_park_ratio = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'park_ratio')
     ctas_park_ratio = athena.ctas(GLUE_DATABASE_AD_HOC, 'park_ratio', exec_date)
 
     drop_congestion_by_division = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'congestion_by_division')
-    ctas_congestion_by_division = athena.ctas_num_area(GLUE_DATABASE_AD_HOC,'congestion_by_division', exec_date)
+    ctas_congestion_by_division = athena.ctas(GLUE_DATABASE_AD_HOC,'congestion_by_division', exec_date)
     drop_congestion = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'congestion')
     ctas_congestion = athena.ctas(GLUE_DATABASE_ANALYTICS,'congestion', exec_date)
     drop_welfare_index = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, 'welfare_index')
-    ctas_welfare_index = athena.ctas_num_area(GLUE_DATABASE_AD_HOC,'welfare_index', exec_date)
+    ctas_welfare_index = athena.ctas(GLUE_DATABASE_AD_HOC,'welfare_index', exec_date)
     
     for table, category in target_condition.items():
         drop = athena.drop_if_exists(GLUE_DATABASE_AD_HOC, table)
@@ -52,10 +52,12 @@ def analytics_ELT():
         ad_hoc_tasks.append(drop >> ctas)
 
     ad_hoc_tasks.append(drop_park_ratio >> ctas_park_ratio)
-    analytics_tasks.append([
+    analytics_tasks = [
         drop_congestion_by_division >> ctas_congestion_by_division >> drop_congestion >> ctas_congestion,
         drop_welfare_index >> ctas_welfare_index
-    ])
+    ]
 
     # Task Flow
-    start_task >> ad_hoc_tasks >> analytics_tasks >> end_task
+    start_task >> ad_hoc_tasks >> ad_hoc_to_analytics >> analytics_tasks >> end_task
+
+analytics_ELT = analytics_ELT()
