@@ -61,7 +61,7 @@
 - Github: 코드 형상 관리 및 배포
 ![Untitled (6)](https://github.com/jujaemin/seoul_data_pipeline/assets/147119777/6a961435-55fb-437f-bfc5-0bf9e5f2663c)
 - Slack, Gather: 실시간 이슈 공유 및 소통
-![Untitled (8)](https://github.com/jujaemin/seoul_data_pipeline/assets/147119777/d7cb6411-0297-4e6d-b9ec-fde32759b6bd)
+![캡처](https://github.com/jujaemin/seoul_data_pipeline/assets/147119777/d614fb53-23ff-4bfc-88e1-5dba719ea503)
 ![Untitled (7)](https://github.com/jujaemin/seoul_data_pipeline/assets/147119777/e6c9027a-9c25-4e1b-bbec-33375846cf57)
 
 ### 요구 사항 도출: 랭킹 지표 정의
