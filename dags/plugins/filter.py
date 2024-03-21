@@ -45,43 +45,43 @@ class air(BaseModel):
         
     @validator('region')
     def handle_string_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('gu')
     def handle_string2_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('pm10')
     def handle_pm10_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['pm10'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['pm10'].mean() if pd.isna(value) else value
     
     @validator('pm25')
     def handle_pm25_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['pm25'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['pm25'].mean() if pd.isna(value) else value
     
     @validator('o3')
     def handle_o3_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['o3'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['o3'].mean() if pd.isna(value) else value
     
     @validator('no2')
     def handle_no2_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['no2'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['no2'].mean() if pd.isna(value) else value
     
     @validator('co')
     def handle_co_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['co'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['co'].mean() if pd.isna(value) else value
     
     @validator('so2')
     def handle_so2_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['so2'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['so2'].mean() if pd.isna(value) else value
 
 
 
@@ -105,13 +105,13 @@ class pop(BaseModel):
         
     @validator('gu')
     def handle_sgg_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
     @validator('total_living_pop')
     def handle_pop_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['total_living_pop'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['total_living_pop'].mean() if pd.isna(value) else value
 
 
 class housing(BaseModel):
@@ -137,37 +137,38 @@ class housing(BaseModel):
     
     @validator('gu')
     def handle_sgg_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
     
     @validator('house_name')
     def handle_bdnm_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        #  결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('house_type')
     def handle_bduse_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
     @validator('price')
     def handle_price_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        # 결측치를 평균으로 처리
         return values['price'].mean() if pd.isna(value) else value
     
     @validator('house_area')
     def handle_area_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        # 결측치를 평균으로 처리
         return values['house_area'].mean() if pd.isna(value) else value
     
     @validator('floor')
     def handle_height_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
+        # 결측치를 평균으로 처리
         return values['floor'].mean() if pd.isna(value) else value
     
     @validator('built_year')
     def handle_year_columns(cls, value):
+        # 결측치를 0으로 처리
         return 0 if pd.isna(value) else value
 
 
@@ -197,44 +198,44 @@ class road(BaseModel):
     
     @validator('division_name')
     def handle_sgga_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
         
     @validator('time_group_name')
     def handle_ts_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('time_explain')
     def handle_ex_ts_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
     @validator('division_code')
     def handle_lac_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 0으로 처리
+        return 0 if pd.isna(value) else value
     
     @validator('avg_speed')
     def handle_speed_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['avg_speed'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['avg_speed'].mean() if pd.isna(value) else value
     
     @validator('day_code')
     def handle_wkd_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 0으로 처리
+        return 0 if pd.isna(value) else value
     
     @validator('day_group_code')
     def handle_wkdg_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 0으로 처리
+        return 0 if pd.isna(value) else value
     
     @validator('time_code')
     def handle_tc_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 0으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 0으로 처리
+        return 0 if pd.isna(value) else value
     
 
 class welfare(BaseModel):
@@ -259,69 +260,69 @@ class welfare(BaseModel):
         
     @validator('name')
     def handle_fanm_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('code')
     def handle_facd_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('category')
     def handle_fcct_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('detailed_category')
     def handle_fcct_detail_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('shi_gu_category')
     def handle_sggp_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('manager_name')
     def handle_manm_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('address')
     def handle_faad_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('phone_number')
     def handle_pn_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('zip_code')
     def handle_mn_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
     @validator('shi_gu_code')
     def handle_sggc_columns(cls, value):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return 0 if pd.isna(value) else value
     
     @validator('shi_gu')
     def handle_sgg_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
     
     @validator('capacity')
     def handle_full_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['capacity'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 결측치를 평균으로 처리
+        return values['capacity'].mean() if pd.isna(value) else value
     
     @validator('current_head_count')
     def handle_now_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return values['current_head_count'].mean() if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        # 컬럼의 결측치를 평균으로 처리
+        return values['current_head_count'].mean() if pd.isna(value) else value
 
 
 class noise(BaseModel):
@@ -343,26 +344,27 @@ class noise(BaseModel):
     
     @validator('gu')
     def translate(cls, value):
+        # 영어로 된 자치구 이름을 번역   
         return en_to_ko[value]
     
     @validator('avg_noise')
     def handle_noise_columns(cls, value, values):
-        # 실수나 정수형으로 된 컬럼의 결측치를 평균으로 처리
-        return 0 if pd.isna(value) or str(value).strip().lower() in ('null', '') else value
+        #결측치를 평균으로 처리
+        return 0 if pd.isna(value) else value
         
     @validator('region_type')
     def handle_area_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
     
     @validator('gu')
     def handle_sgg_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        #결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
     
     @validator('dong')
     def handle_hjd_column(cls, value):
-        # 문자열로 된 컬럼의 결측치를 'NULL'로 처리
+        # 결측치를 'NULL'로 처리
         return 'NULL' if value == 'nan' else value
 
