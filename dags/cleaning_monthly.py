@@ -14,10 +14,11 @@ def welfare_cleaning(**context):
     #try:
         execution_date = context['execution_date'].date()
         data = Cleaning.read_csv_to_df('welfare', execution_date, filter.column_indexes['welfare'])
-        data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'welfare'), 'shi_gu')
-        result_data = Cleaning.unify_null(data)
+        renamed_data = Cleaning.rename_cols(data, 'welfare')
+        checked_data = Cleaning.check_pk_validation(renamed_data, 'shi_gu')
+        unified_data = Cleaning.unify_null(data)
 
-        result_data = Cleaning.filter(result_data, 'welfare')
+        result_data = Cleaning.filter(unified_data, 'welfare')
 
         save_path = 'temp/seoul_welfare/cleaning/'
         file_name = f'{execution_date}.parquet'
