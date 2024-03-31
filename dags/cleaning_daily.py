@@ -14,7 +14,8 @@ def road_cleaning(**context):
     try:
         execution_date = context['execution_date'].date()
         data = Cleaning.read_csv_to_df('road', execution_date, filter.column_indexes['road'])
-        checked_data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'road'), 'division_name')
+        renamed_data = Cleaning.rename_cols(data, 'road')
+        checked_data = Cleaning.check_pk_validation(renamed_data, 'division_name')
         unified_data = Cleaning.unify_null(checked_data)
 
         result_data = Cleaning.filter(unified_data, 'road')
@@ -43,8 +44,8 @@ def air_cleaning(**context):
     try:
         execution_date = context['execution_date'].date()
         data = Cleaning.read_csv_to_df('air', execution_date, filter.column_indexes['air'])
-        checked_data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'air'), 'gu')
-
+        renamed_data = Cleaning.rename_cols(data, 'air')
+        checked_data = Cleaning.check_pk_validation(renamed_data, 'gu')
         unified_data = Cleaning.unify_null(checked_data)
         result_data = Cleaning.filter(unified_data, 'air')
 
@@ -71,7 +72,8 @@ def housing_cleaning(**context):
         try:
             execution_date = context['execution_date'].date()
             data = Cleaning.read_csv_to_df('housing', execution_date, filter.column_indexes['housing'])
-            checked_data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'housing'), 'gu')
+            renamed_data = Cleaning.rename_cols(data, 'housing')
+            checked_data = Cleaning.check_pk_validation(renamed_data, 'gu')
             unified_data = Cleaning.unify_null(checked_data)
 
             result_data = Cleaning.filter(unified_data, 'housing')
@@ -99,7 +101,8 @@ def pop_cleaning(**context):
     try:
         execution_date = context['execution_date'].date() - timedelta(days=4)
         data = Cleaning.read_csv_to_df('pop', execution_date, filter.column_indexes['pop'])
-        checked_data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'pop'), 'gu')
+        renamed_data = renamed_data = Cleaning.rename_cols(data, 'pop')
+        checked_data = Cleaning.check_pk_validation(renamed_data, 'gu')
         unified_data = Cleaning.unify_null(checked_data)
 
         result_data = Cleaning.filter(unified_data, 'pop')
