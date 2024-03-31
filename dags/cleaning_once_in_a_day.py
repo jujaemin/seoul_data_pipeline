@@ -16,10 +16,11 @@ def cleaning(**context):
     try:
         execution_date = context['execution_date'].date() - timedelta(days=14)
         data = Cleaning.read_csv_to_df('noise', execution_date, filter.column_indexes['noise'])
-        data = Cleaning.check_pk_validation(Cleaning.rename_cols(data, 'noise'), 'gu')
-        result_data = Cleaning.unify_null(data)
+        renamed_data = Cleaning.rename_cols(data, 'road')
+        checked_data = Cleaning.check_pk_validation(renamed_data, 'gu')
+        unified_data = Cleaning.unify_null(data)
 
-        result_data = Cleaning.filter(result_data, 'noise')
+        result_data = Cleaning.filter(unified_data, 'noise')
 
         save_path = 'temp/seoul_noise/cleaning/'
         file_name = f'{execution_date}.parquet'
