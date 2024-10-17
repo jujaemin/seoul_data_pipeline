@@ -113,7 +113,7 @@ with DAG(
 
     trigger_dag_task = TriggerDagRunOperator(
         task_id='trigger_dag_task',
-        trigger_dag_id='cleaning_once_day',
+        trigger_dag_id='cleaning_once_in_a_day',
         execution_date='{{data_interval_start}}',
         reset_dag_run=True,
         poke_interval=60,
