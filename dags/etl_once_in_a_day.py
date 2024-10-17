@@ -110,6 +110,16 @@ with DAG(
         # 'on_failure_callback': slack.on_failure_callback,
     }
 ) as dag:
+
+    trigger_dag_task = TriggerDagRunOperator(
+        task_id='trigger_dag_task',
+        trigger_dag_id='cleaning_once_day',
+        execution_date='{{data_interval_start}}',
+        reset_dag_run=True,
+        poke_interval=60,
+        allowed_states=['success', 'failed', 'upstream_failed']
+    )
+    
     # OPEN API 키 가져오기
     api_key = Variable.get("api_key_seoul")
     # AWS Conn 정보 가져오기
@@ -122,4 +132,6 @@ with DAG(
     # extract & transform
     transformed_data = transform(extract(api_key, default_args["logical_date"]))
     # load
-    load(aws_conn_id, s3_bucket_name, s3_key, transformed_data)
+    once_task = load(aws_conn_id, s3_bucket_name, s3_key, transformed_data)
+
+    once_task >> trigger_dag_task
